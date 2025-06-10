@@ -1,0 +1,14 @@
+.break-container {
+    display: flex;
+    flex-flow: column;
+}
+
+.delete-btn {
+    background-color: red;
+    color: white;
+}
+.confirm-btn {
+    background-color: green;
+    color: white;
+    margin-right: 18px;
+}

@@ -1,0 +1,26 @@
+
+<div class="break-container" *ngFor="let break of breaks; let i = index">
+    <h3>Break #{{i + 1}}</h3>
+    <mat-form-field>
+        <mat-label>Pick a start time</mat-label>
+        <input [disabled]="break.confirmed" [name]="'break-start-' + i" matInput [matTimepicker]="breakStart" [(ngModel)]="break.start">
+        <mat-timepicker-toggle matIconSuffix [for]="breakStart"/>
+        <mat-timepicker interval="5min" #breakStart/>
+    </mat-form-field>
+    <mat-form-field>
+        <mat-label>Pick an end time</mat-label>
+        <input [disabled]="break.confirmed" [name]="'break-end-' + i" matInput [matTimepicker]="breakEnd" [(ngModel)]="break.end">
+        <mat-timepicker-toggle matIconSuffix [for]="breakEnd"/>
+        <mat-timepicker interval="5min" #breakEnd/>
+    </mat-form-field>
+    <div class="buttons">
+        <button *ngIf="!break.confirmed" (click)="break.confirmed = true" class="confirm-btn" mat-stroked-button>
+            <mat-icon>check</mat-icon>
+            Confirm
+        </button>
+        <button (click)="deleteBreak(i)" class="delete-btn" mat-stroked-button>
+            <mat-icon>delete</mat-icon>
+            Delete
+        </button>
+    </div>
+</div>

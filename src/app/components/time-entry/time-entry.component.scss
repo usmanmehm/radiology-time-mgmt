@@ -1,0 +1,23 @@
+:host {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+form {
+    display: flex;
+    flex-flow: column;
+    width: 90%;
+    margin-top: 40px;
+}
+
+.form-field {
+    display: flex;
+    justify-content: space-between;
+    // gap: 30px;
+    margin: 20px;
+}
+
+button {
+    margin-top: 12px;
+}

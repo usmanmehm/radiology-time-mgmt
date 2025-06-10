@@ -1,0 +1,30 @@
+<form action="">
+    <h2>Working Session Info</h2>
+    <mat-form-field>
+        <mat-label>Pick a start time</mat-label>
+        <input name="start-time" matInput [matTimepicker]="startTimePicker" [(ngModel)]="startTime">
+        <mat-timepicker-toggle matIconSuffix [for]="startTimePicker"/>
+        <mat-timepicker interval="5min" #startTimePicker/>
+    </mat-form-field>
+    <mat-form-field>
+        <mat-label>Pick an end time</mat-label>
+        <input name="end-time" matInput [matTimepicker]="endTimePicker" [(ngModel)]="endTime">
+        <mat-timepicker-toggle matIconSuffix [for]="endTimePicker"/>
+        <mat-timepicker interval="5min" #endTimePicker/>
+    </mat-form-field>
+    <mat-form-field>
+        <mat-label>Time per case (mins)</mat-label>
+        <input name="time-per-case" matInput placeholder="Enter value in minutes" [(ngModel)]="timePerCase" type="number">
+      </mat-form-field>
+    <mat-form-field>
+        <mat-label>Number of Cases</mat-label>
+        <input name="num-cases" matInput placeholder="Enter number of cases" [(ngModel)]="numCases" type="number">
+    </mat-form-field>
+
+    <app-break [breaks]="breaks"></app-break>
+
+   
+</form>
+
+<button (click)="addBreak()" mat-button><mat-icon>add</mat-icon>Add Break</button>
+<button (click)="startSession()"  mat-stroked-button>Start Session</button>
