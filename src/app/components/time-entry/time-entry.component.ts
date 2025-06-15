@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BreakComponent } from '../break/break.component';
-import { SessionInfo } from '../../app.component';
+import { BreakInfo, SessionInfo } from '../../app.component';
 
 @Component({
   selector: 'time-entry',
@@ -18,7 +18,7 @@ import { SessionInfo } from '../../app.component';
   styleUrl: './time-entry.component.scss'
 })
 export class TimeEntryComponent {
-  breaks!: { start: Date, end: Date, confirmed: boolean }[];
+  breaks!: BreakInfo[];
   startTime = new Date();
   endTime = new Date(this.addMins(120));
   timePerCase = 15;
@@ -42,7 +42,7 @@ export class TimeEntryComponent {
       start: new Date(),
       end: new Date(this.addMins(30)),
       confirmed: false
-    })
+    });
   }
 
   addMins(mins: number) {
@@ -58,7 +58,8 @@ export class TimeEntryComponent {
       startTime: this.startTime,
       endTime: this.endTime,
       timePerCase: this.timePerCase,
-      numCases: this.numCases
+      numCases: this.numCases,
+      breaks: this.breaks?.filter(el => el.confirmed) || []
     })
   }
 }

@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTimepickerModule } from '@angular/material/timepicker';
+import { BreakInfo } from '../../app.component';
 
 @Component({
   selector: 'app-break',
@@ -14,9 +15,13 @@ import { MatTimepickerModule } from '@angular/material/timepicker';
   styleUrl: './break.component.scss'
 })
 export class BreakComponent {
-  @Input() breaks!: { start: Date, end: Date, confirmed: boolean }[];
+  @Input() breaks!: BreakInfo[];
 
   deleteBreak(i: number) {
     this.breaks.splice(i, 1);
+  }
+
+  confirmBreak(i: number) {
+    this.breaks[i].confirmed = true;
   }
 }

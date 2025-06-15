@@ -14,7 +14,7 @@
         <mat-timepicker interval="5min" #breakEnd/>
     </mat-form-field>
     <div class="buttons">
-        <button *ngIf="!break.confirmed" (click)="break.confirmed = true" class="confirm-btn" mat-stroked-button>
+        <button *ngIf="!break.confirmed" (click)="confirmBreak(i)" (click)="break.confirmed = true" class="confirm-btn" mat-stroked-button>
             <mat-icon>check</mat-icon>
             Confirm
         </button>
