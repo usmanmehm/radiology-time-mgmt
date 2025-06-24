@@ -1,1 +1,19 @@
-<p>work-view works!</p>
+<div class="container" *ngIf="currentCase; else loadingSpinner">
+    <h1 [class.over-time]="isOverTime">Time left to finish case: {{ isOverTime ? '-' : '' }}{{ timeLeft$ | async }}</h1>
+    <p><b>Current Case:</b> {{ currentCase.description }}</p>
+    <p><b>Completed cases:</b> {{ caseNumber }} / {{ totalCases }}</p>
+    <p><b>Time per case allowed:</b> {{ formattedTimePerCase }} minutes</p>
+    <p><b>Current pace:</b> {{ pace }} minutes</p>
+    <p><b>Session End Time</b>: {{ sessionEndTime }}</p>
+    <h2><b></b> "{{ motivationalQuote }}" - Julius Caesar</h2>
+
+    <div class="button-container">
+        <button mat-stroked-button (click)="onSignCase()">Sign Case</button>
+        <!-- <button (click)="onCancelSession()">Cancel</button> -->
+        <button mat-stroked-button (click)="onEndSession()">End</button>
+    </div>
+</div>
+
+<ng-template #loadingSpinner>
+    <mat-progress-spinner></mat-progress-spinner>
+</ng-template>

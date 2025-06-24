@@ -1,12 +1,6 @@
 <form action="">
     <h2>Working Session Info</h2>
     <mat-form-field>
-        <mat-label>Pick a start time</mat-label>
-        <input name="start-time" matInput [matTimepicker]="startTimePicker" [(ngModel)]="startTime">
-        <mat-timepicker-toggle matIconSuffix [for]="startTimePicker"/>
-        <mat-timepicker interval="5min" #startTimePicker/>
-    </mat-form-field>
-    <mat-form-field>
         <mat-label>Pick an end time</mat-label>
         <input name="end-time" matInput [matTimepicker]="endTimePicker" [(ngModel)]="endTime">
         <mat-timepicker-toggle matIconSuffix [for]="endTimePicker"/>

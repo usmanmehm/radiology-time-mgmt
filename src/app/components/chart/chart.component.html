@@ -1,8 +1,8 @@
 <div class="container">
     <div *ngFor="let el of minutesArray" [class.top-boundary]="el.minute / 60 === startHour">
         <ng-container *ngIf="el.minute / 60 >= startHour && (el.minute - 59) / 60 <= endHour">
-            <div [style.height.px]="heightInPixels / minutesShown" class="minute-space" [class.break]="el.break" [class.work]="el.work"></div>
-            <div class="hour-boundary" *ngIf="el.minute % 60 === 0"><p>{{ el.minute / 60 }}</p></div>
+            <div [style.height.px]="heightInPixels / minutesShown" class="minute-space" [class.break]="el.break" [class.work]="el.work" [title]="el.description"></div>
+            <div class="hour-boundary" *ngIf="el.minute % 60 === 0"><p>{{ formatHour(el.minute / 60) }}</p></div>
         </ng-container>
     </div>
 </div>

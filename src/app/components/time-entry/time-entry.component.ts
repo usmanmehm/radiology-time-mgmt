@@ -20,7 +20,7 @@ import { BreakInfo, SessionInfo } from '../../app.component';
 export class TimeEntryComponent {
   breaks!: BreakInfo[];
   startTime = new Date();
-  endTime = new Date(this.addMins(120));
+  endTime = new Date(this.addMins(40));
   timePerCase = 15;
   numCases = 10;
 
@@ -55,7 +55,7 @@ export class TimeEntryComponent {
 
   startSession() {
     this.onSessionStart.emit({
-      startTime: this.startTime,
+      startTime: new Date(),
       endTime: this.endTime,
       timePerCase: this.timePerCase,
       numCases: this.numCases,

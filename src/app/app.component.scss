@@ -9,5 +9,9 @@ section {
 
     .time-entry {
         width: 70%;
+
+        &.in-progress {
+            display: none;
+        }
     }
 }

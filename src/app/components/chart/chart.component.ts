@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { BlockOfTime, SessionInfo } from '../../app.component';
+import dayjs from 'dayjs';
 
 @Component({
   selector: 'app-chart',
@@ -14,16 +16,15 @@ export class ChartComponent implements OnInit, OnChanges {
   @Input() endHour = 17;
   minutesShown = 1440;
 
-  breaks = [{
+  formattedStartTime!: string;
+  formattedEndTime!: string;
+
+  @Input() breaks = [{
     from: 10 * 60,
     to: 11.5 * 60
   }];
 
-  workingSessions = [
-    { from: 9 * 60, to: 10 * 60 },
-    { from: 11 * 60, to: 12 * 60 },
-    { from: 13 * 60, to: 14 * 60 },
-  ]
+  @Input() workingSessions: BlockOfTime[] = []
 
   @Input() heightInPixels = 700;
 
@@ -33,6 +34,7 @@ export class ChartComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     this.minutesShown = (this.endHour + 1 - this.startHour) * 60;
+
     this.populateWorkingSessionInfo();
   }
 
@@ -43,13 +45,25 @@ export class ChartComponent implements OnInit, OnChanges {
   populateWorkingSessionInfo() {
     // this function is to evaluate whether each minute is a working session or a break
     this.minutesArray = this.minutesArray.map((minute: any) => {
+      let minuteValue = minute;
+      if (minute.minute >= 0) {
+        minuteValue = minute.minute;
+      }
+
+      const workingSessionIndex = this.workingSessions.findIndex(workMin => minuteValue >= workMin.from && minuteValue <= workMin.to);
+      const breakIndex = this.breaks.findIndex(breakMin => minuteValue >= breakMin.from && minuteValue <= breakMin.to);
+
       return {
-        minute,
-        break: !!this.breaks.find(breakMin => minute > breakMin.from && minute <= breakMin.to),
-        work: !!this.workingSessions.find(workMin => minute > workMin.from && minute <= workMin.to)
+        minute: minuteValue,
+        break: breakIndex > -1,
+        work: workingSessionIndex > -1,
+        description: breakIndex > -1 ? 'Break' : workingSessionIndex > -1 ? this.workingSessions[workingSessionIndex].description : ''
       }
     });
 
-    console.log(this.minutesArray);
+  }
+
+  formatHour(hour: number) {
+    return dayjs().hour(hour).format('h A');
   }
 }

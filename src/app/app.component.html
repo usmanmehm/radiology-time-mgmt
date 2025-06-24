@@ -3,10 +3,25 @@
         <app-chart
             [startHour]="startTime"
             [endHour]="endTime"
+            [workingSessions]="workingSessions"
+            [breaks]="breaks"
             [heightInPixels]=1000>
         </app-chart>
     </div>
-    <div class="time-entry">
-        <time-entry (onSessionStart)="setSessionDetails($event)"></time-entry>
+    <div class="time-entry" *ngIf="!sessionInProgress">
+        <time-entry (onSessionStart)="setSessionDetails($event, true)"></time-entry>
+    </div>
+
+    <div class="work-view" *ngIf="sessionInProgress">
+        <app-work-view
+            [currentCase]="currentCase"
+            [totalCases]="totalCases"
+            [timePerCase]="timePerCase"
+            [sessionEndTime]="sessionEndTime"
+            [caseNumber]="currentCaseNumber"
+            [previousCases]="previousCases"
+            (signCase)="onSignCase()"
+            (endSession)="onEndSession()"
+        ></app-work-view>
     </div>
 </section>

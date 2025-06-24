@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { ChartComponent } from './components/chart/chart.component';
 import { TimeEntryComponent } from './components/time-entry/time-entry.component';
 import dayjs from 'dayjs';
+import { WorkViewComponent } from './components/work-view/work-view.component';
+import { CommonModule } from '@angular/common';
 
 export interface SessionInfo {
   startTime: Date;
@@ -12,9 +14,11 @@ export interface SessionInfo {
 }
 
 export interface BlockOfTime {
-  from: number;
-  to: number;
+  from: number; // expected minute position for start
+  to: number; // expected/calculated minute position for end
   description?: string;
+  startTime?: Date; // actual start time for block
+  endTime?: Date; // actual end time for block
 }
 
 export interface BreakInfo {
@@ -30,7 +34,7 @@ export enum SessionModes {
 
 @Component({
   selector: 'app-root',
-  imports: [ChartComponent, TimeEntryComponent],
+  imports: [ChartComponent, TimeEntryComponent, WorkViewComponent, CommonModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -39,16 +43,39 @@ export class AppComponent {
   startTime = 9;
   endTime = 17;
   mode: SessionModes = SessionModes.NumCases;
+  workingSessions: BlockOfTime[] = [];
+  breaks: BlockOfTime[] = [];
+  sessionInProgress = false;
+  currentCase!: BlockOfTime;
+  sessionStartTime!: Date;
+  sessionEndTime!: string;
+  sessionEndDate!: Date;
+  currentCaseNumber!: number | undefined;
+  sessionDetails!: SessionInfo;
+  previousCases: BlockOfTime[] = [];
 
-  setSessionDetails(details: SessionInfo) {
+  timePerCase!: number;
+  totalCases = 0;
+
+  setSessionDetails(details: SessionInfo, sessionStart = false) {
+    if (sessionStart) {
+      this.totalCases = 0;
+      this.currentCaseNumber = undefined;
+    }
+
+
+    if (this.totalCases === 0) {
+      this.totalCases = details.numCases;
+    }
+
+    this.sessionDetails = details;
     this.startTime = details.startTime.getHours();
     this.endTime = details.endTime.getHours();
+    this.sessionEndDate = details.endTime;
+    this.sessionStartTime = details.startTime;
+    this.sessionEndTime = dayjs(details.endTime).format('hh:mm A');
 
-    console.log(details);
-
-    // have to find way to populate list of {from, to} objects from this for chart component to consume
-    // without any breaks, very simple --> only one object from startTime to endTime
-    // with breaks, there have to be multiple objects for working sessions and multiple objects for breaks
+    // populate working session blocks for calendar representation
     if (this.mode === SessionModes.NumCases) {
       const totalBreakTimeMs = (details.breaks || []).reduce(
         (accumulator, currentValue) => {
@@ -56,75 +83,83 @@ export class AppComponent {
         },
         0,
       );
-      const timePerCase = this.millisecondsToMinutes(((dayjs(details.endTime).diff(dayjs(details.startTime)) - totalBreakTimeMs) / details.numCases));
+      const casesLeft = details.numCases - this.previousCases.length;
+
+      const timePerCase = this.millisecondsToMinutes(((dayjs(details.endTime).diff(dayjs(new Date())) - totalBreakTimeMs) / casesLeft));
       const blocksOfTime: BlockOfTime[] = [];
       let startTime = this.getMinutePosition(details.startTime);
       for (let i = 0; i < details.numCases; i++) {
-        let endTime = startTime + timePerCase;
-        const breakOverlapsWithStart = (details.breaks || []).findIndex(val => {
-          const breakStart = this.getMinutePosition(val.start);
-          const breakEnd = this.getMinutePosition(val.end);
-          return breakStart <= startTime && breakEnd > (startTime);
-        });
-        const breakOverlapsWithEnd = (details.breaks || []).findIndex(val => this.getMinutePosition(val.start) < endTime && this.getMinutePosition(val.end) > (endTime));
-
-        if (breakOverlapsWithStart >= 0 && details.breaks?.length) {
-          startTime = this.getMinutePosition(details.breaks[breakOverlapsWithStart].end);
-          endTime = startTime + timePerCase;
-        }
-
-        const shouldSplitBlock = breakOverlapsWithStart === -1 && breakOverlapsWithEnd >= 0
-
-        if (shouldSplitBlock  && details.breaks?.length) {
-          // in this scenario, we have to split the working session to be around the break
-          const endTime1 = this.getMinutePosition(details.breaks[breakOverlapsWithEnd].start) - 1;
-          const startTime1 = this.getMinutePosition(details.breaks[breakOverlapsWithEnd].end) + 1;
-          const timeLeftAfterFirstSession = (timePerCase - (endTime1 - startTime));
-
-          blocksOfTime.push({
-            from: startTime,
-            to: this.getMinutePosition(details.breaks[breakOverlapsWithEnd].start) - 1,
-            description: 'Case #' + (i + 1) + '- First Session'
+        if (this.previousCases[i]) {
+          blocksOfTime.push(this.previousCases[i]);
+          startTime = this.previousCases[i].to
+        } else {
+          let endTime = startTime + timePerCase;
+          const breakOverlapsWithStart = (details.breaks || []).findIndex(val => {
+            const breakStart = this.getMinutePosition(val.start);
+            const breakEnd = this.getMinutePosition(val.end);
+            return breakStart <= startTime && breakEnd > (startTime);
           });
-
-          blocksOfTime.push({
-            from: this.getMinutePosition(details.breaks[breakOverlapsWithEnd].start),
-            to: this.getMinutePosition(details.breaks[breakOverlapsWithEnd].end),
-            description: 'Break'
-          })
-
-          blocksOfTime.push({
-            from: this.getMinutePosition(details.breaks[breakOverlapsWithEnd].end) + 1,
-            to: startTime1 + timeLeftAfterFirstSession,
-            description: 'Case #' + (i + 1) + '- Second Session'
-          });
+          const breakOverlapsWithEnd = (details.breaks || []).findIndex(val => this.getMinutePosition(val.start) < endTime && this.getMinutePosition(val.end) > (endTime));
+  
+          if (breakOverlapsWithStart >= 0 && details.breaks?.length) {
+            startTime = this.getMinutePosition(details.breaks[breakOverlapsWithStart].end);
+            endTime = startTime + timePerCase;
+          }
+  
+          const shouldSplitBlock = breakOverlapsWithStart === -1 && breakOverlapsWithEnd >= 0
+  
+          if (shouldSplitBlock  && details.breaks?.length) {
+            // in this scenario, we have to split the working session to be around the break
+            const endTime1 = this.getMinutePosition(details.breaks[breakOverlapsWithEnd].start) - 1;
+            const startTime1 = this.getMinutePosition(details.breaks[breakOverlapsWithEnd].end) + 1;
+            const timeLeftAfterFirstSession = (timePerCase - (endTime1 - startTime));
+  
+            blocksOfTime.push({
+              from: startTime,
+              to: this.getMinutePosition(details.breaks[breakOverlapsWithEnd].start) - 1,
+              description: 'Case #' + (i + 1) + ' - First Session'
+            });
+  
+            blocksOfTime.push({
+              from: this.getMinutePosition(details.breaks[breakOverlapsWithEnd].end) + 1,
+              to: startTime1 + timeLeftAfterFirstSession,
+              description: 'Case #' + (i + 1) + ' - Second Session'
+            });
+          }
+  
+          if (!shouldSplitBlock) {
+            blocksOfTime.push({
+              from: startTime,
+              to: endTime,
+              description: 'Case #' + (i + 1)
+            });
+          }
+  
+          startTime += timePerCase;
         }
-
-        if (!shouldSplitBlock) {
-          blocksOfTime.push({
-            from: startTime,
-            to: endTime,
-            description: 'Case #' + (i + 1)
-          });
-        }
-
-        startTime += timePerCase;
       }
 
-      console.log(blocksOfTime);
+      this.timePerCase = timePerCase;
+      this.workingSessions = blocksOfTime;
+      this.breaks = (details.breaks || []).map(el => ({
+        from: this.getMinutePosition(el.start),
+        to: this.getMinutePosition(el.end),
+        description: 'Break',
+        startTime: el.start,
+        endTime: el.end
+      }));
     }
 
 
     // may not be relevant but whatever lol
     if (!details.breaks?.length) {
       const timePerCase = this.millisecondsToMinutes((dayjs(details.endTime).diff(dayjs(details.startTime)) / details.numCases));
-      console.log(timePerCase);
     }
 
-
-    // also have to think about adding a slider on the chart component for the current minute
-    // also have to think about adding hover functionality so that user knows what block of time
-    // corresponds to what (ex. hovering over working session 1 along with details like number of cases in this block)
+    this.sessionInProgress = true;
+    this.currentCaseNumber = this.currentCaseNumber === undefined ? 0 : this.currentCaseNumber + 1;
+    this.currentCase = this.workingSessions[this.currentCaseNumber as number];
+    this.currentCase.startTime = new Date();
   }
 
   millisecondsToMinutes(milliseconds: number) {
@@ -133,5 +168,53 @@ export class AppComponent {
 
   getMinutePosition(date: Date) {
     return date.getHours() * 60 + date.getMinutes();
+  }
+
+  formatDisplayTime(time: number): string {
+    // want to display as mm:ss
+    // fix
+    const minute = Math.floor(time%60);
+    const second = Math.floor(time/60);
+    return `${minute}:${minute}`;
+  }
+
+  onSignCase() {
+    if (this.sessionDetails.numCases === this.previousCases.length + 1) {
+      alert("YOU'RE ALL DONE!");
+      this.currentCaseNumber = undefined;
+      this.onEndSession();
+      return;
+    }
+
+
+    // to calculate the new durations / pacing
+    // we need to get the session end time
+    // subtract the duration of all of the breaks
+    // and then divide by the number of working sessions left
+    const minsTillEndTime = dayjs(this.sessionEndDate).diff(this.sessionEndDate) / 1000 / 60;
+    const totalBreakTimeMins = (this.breaks || []).reduce(
+      (accumulator, currentValue) => {
+        return accumulator + (currentValue.to - currentValue.from)
+      },
+      0,
+    );
+    const newDuration = (minsTillEndTime - totalBreakTimeMins) / (this.workingSessions.length - 1);
+    this.previousCases.push({
+      ...this.currentCase,
+      to: this.getMinutePosition(new Date()),
+      endTime: new Date()
+    });
+
+    this.setSessionDetails({
+      ...this.sessionDetails,
+    })
+
+  }
+
+  onEndSession() {
+    this.sessionInProgress = false;
+    this.breaks = [];
+    this.workingSessions = [];
+    this.previousCases = [];
   }
 }
