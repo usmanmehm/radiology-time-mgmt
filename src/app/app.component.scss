@@ -8,10 +8,15 @@ section {
     }
 
     .time-entry {
-        width: 70%;
+        width: 50%;
 
         &.in-progress {
             display: none;
         }
     }
+}
+
+app-progress-bar {
+    margin-left: 35px;
+    margin-top: 70px;
 }

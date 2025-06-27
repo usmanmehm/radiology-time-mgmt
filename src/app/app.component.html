@@ -1,13 +1,7 @@
 <section>
-    <div class="chart">
-        <app-chart
-            [startHour]="startTime"
-            [endHour]="endTime"
-            [workingSessions]="workingSessions"
-            [breaks]="breaks"
-            [heightInPixels]=1000>
-        </app-chart>
-    </div>
+    <app-progress-bar *ngIf="sessionInProgress" [percentage]="sessionService.timeLeftPercentage" [caption]="sessionService.timeLeft" [barColor]="sessionService.showDanger ? 'red' : sessionService.showWarning ? '#FFBF00' : 'green'"></app-progress-bar>
+    <app-progress-bar *ngIf="sessionInProgress" barColor="darkblue" [percentage]="sessionService.casesLeftPercentage" [caption]="sessionService.casesLeftText"></app-progress-bar>
+    <!-- <app-progress-bar *ngIf="sessionInProgress" [percentage]="65"></app-progress-bar> -->
     <div class="time-entry" *ngIf="!sessionInProgress">
         <time-entry (onSessionStart)="setSessionDetails($event, true)"></time-entry>
     </div>
@@ -24,4 +18,16 @@
             (endSession)="onEndSession()"
         ></app-work-view>
     </div>
+
+    <div class="chart">
+        <app-chart
+            [startHour]="startTime"
+            [endHour]="endTime"
+            [workingSessions]="workingSessions"
+            [breaks]="breaks"
+            [heightInPixels]=1000>
+        </app-chart>
+    </div>
+
+    
 </section>

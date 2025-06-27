@@ -4,6 +4,8 @@ import { TimeEntryComponent } from './components/time-entry/time-entry.component
 import dayjs from 'dayjs';
 import { WorkViewComponent } from './components/work-view/work-view.component';
 import { CommonModule } from '@angular/common';
+import { ProgressBarComponent } from "./components/progress-bar/progress-bar.component";
+import { WorkingSessionService } from './services/working-session.service';
 
 export interface SessionInfo {
   startTime: Date;
@@ -34,7 +36,7 @@ export enum SessionModes {
 
 @Component({
   selector: 'app-root',
-  imports: [ChartComponent, TimeEntryComponent, WorkViewComponent, CommonModule],
+  imports: [ChartComponent, TimeEntryComponent, WorkViewComponent, CommonModule, ProgressBarComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -56,6 +58,8 @@ export class AppComponent {
 
   timePerCase!: number;
   totalCases = 0;
+
+  constructor(public sessionService: WorkingSessionService) {}
 
   setSessionDetails(details: SessionInfo, sessionStart = false) {
     if (sessionStart) {
@@ -84,6 +88,8 @@ export class AppComponent {
         0,
       );
       const casesLeft = details.numCases - this.previousCases.length;
+      this.sessionService.casesLeftPercentage = Math.floor(casesLeft / details.numCases * 100);
+      this.sessionService.casesLeftText = `${casesLeft}/${details.numCases}`
 
       const timePerCase = this.millisecondsToMinutes(((dayjs(details.endTime).diff(dayjs(new Date())) - totalBreakTimeMs) / casesLeft));
       const blocksOfTime: BlockOfTime[] = [];
@@ -186,7 +192,6 @@ export class AppComponent {
       return;
     }
 
-
     // to calculate the new durations / pacing
     // we need to get the session end time
     // subtract the duration of all of the breaks
@@ -218,3 +223,12 @@ export class AppComponent {
     this.previousCases = [];
   }
 }
+
+
+// TODO
+// 1) horizontal bar for time left in the current case (goes down to 0)
+// 2) exceeding pace by 20% GREEN, keeping pace within +-20% YELLOW, below 80% of the current pace RED
+// 3) audio functionality - waiting on sound clips for different events
+// 4) starting drop down at 6am
+// 5) Three vertical bars - 1: number of cases left, 2: time left per case, 3: OVerall time for entire session
+// 6) Mobile/tablet mode
