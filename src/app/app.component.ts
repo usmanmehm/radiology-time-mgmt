@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild, viewChild } from '@angular/core';
 import { ChartComponent } from './components/chart/chart.component';
 import { TimeEntryComponent } from './components/time-entry/time-entry.component';
 import dayjs from 'dayjs';
@@ -58,6 +58,11 @@ export class AppComponent {
 
   timePerCase!: number;
   totalCases = 0;
+
+  @ViewChild('signCaseAudio') signCaseAudio!: ElementRef<HTMLAudioElement>;
+  @ViewChild('signCaseWarningAudio') signCaseWarningAudio!: ElementRef<HTMLAudioElement>;
+  @ViewChild('signCaseDangerAudio') signCaseDangerAudio!: ElementRef<HTMLAudioElement>;
+  @ViewChild('signCaseOverTime') signCaseOverTime!: ElementRef<HTMLAudioElement>;
 
   constructor(public sessionService: WorkingSessionService) {}
 
@@ -185,6 +190,8 @@ export class AppComponent {
   }
 
   onSignCase() {
+    this.playSignCaseAudio();
+
     if (this.sessionDetails.numCases === this.previousCases.length + 1) {
       alert("YOU'RE ALL DONE!");
       this.currentCaseNumber = undefined;
@@ -222,7 +229,27 @@ export class AppComponent {
     this.workingSessions = [];
     this.previousCases = [];
   }
+
+  playSignCaseAudio() {
+    if (this.sessionService.negativeTime) {
+      this.signCaseOverTime.nativeElement.play();
+      return;
+    }
+
+    if (this.sessionService.showDanger) {
+      this.signCaseDangerAudio.nativeElement.play();
+      return;
+    }
+    if (this.sessionService.showWarning) {
+      this.signCaseWarningAudio.nativeElement.play();
+      return;
+    }
+
+    this.signCaseAudio.nativeElement.play();
+    return;
+  }
 }
+
 
 
 // TODO

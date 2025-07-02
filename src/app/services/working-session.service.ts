@@ -7,6 +7,7 @@ export class WorkingSessionService {
 
   showWarning = false;
   showDanger = false;
+  negativeTime = false;
 
   timeLeft!: string;
   timeLeftPercentage = 100;

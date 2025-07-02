@@ -66,6 +66,7 @@ export class WorkViewComponent implements OnInit, OnChanges {
       map(_ => dayjs(endTimeForCase).diff(new Date())),
       map(millisecondDifference => {
         this.isOverTime = millisecondDifference <= 0;
+        this.sessionService.negativeTime = this.isOverTime;
         this.sessionService.timeLeftPercentage = Math.floor((millisecondDifference / totalTimeForCase) * 100)
         this.sessionService.showWarning = millisecondDifference <= 90 * 1000 ? true : false;
         this.sessionService.showDanger = millisecondDifference <= 30 * 1000 ? true : false;
@@ -117,8 +118,8 @@ export class WorkViewComponent implements OnInit, OnChanges {
   }
 
   formatTime(mins: number, seconds: number, onlyPositive = false) {
-    mins = mins <= 0 ? Math.ceil(mins) : Math.floor(mins);
-    const minusSign = mins <= 0 && !onlyPositive ? '-' : '';
+    mins = this.isOverTime ? Math.ceil(mins) : Math.floor(mins);
+    const minusSign = this.isOverTime && !onlyPositive ? '-' : '';
 
     return minusSign + Math.abs(mins) + ':' + this.formatSecondsWithZeroPadding(seconds);
   }
