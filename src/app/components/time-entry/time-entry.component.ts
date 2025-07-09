@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
 import {MatTimepickerModule} from '@angular/material/timepicker';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -26,6 +26,7 @@ export class TimeEntryComponent {
 
   @Output() breakAdded: EventEmitter<{ start: Date, end: Date }> = new EventEmitter();
   @Output() onSessionStart: EventEmitter<SessionInfo> = new EventEmitter();
+
 
   addBreak() {
     if (!this.breaks) {
@@ -60,6 +61,7 @@ export class TimeEntryComponent {
       timePerCase: this.timePerCase,
       numCases: this.numCases,
       breaks: this.breaks?.filter(el => el.confirmed) || []
-    })
+    });
+
   }
 }

@@ -1,15 +1,16 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import dayjs from 'dayjs';
 import { interval, map, Observable, tap, timer } from 'rxjs';
 import { BlockOfTime } from '../../app.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { WorkingSessionService } from '../../services/working-session.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-work-view',
-  imports: [AsyncPipe, MatProgressSpinnerModule, CommonModule, MatButtonModule],
+  imports: [AsyncPipe, MatProgressSpinnerModule, CommonModule, MatButtonModule, MatIconModule],
   templateUrl: './work-view.component.html',
   styleUrl: './work-view.component.scss'
 })
@@ -32,6 +33,10 @@ export class WorkViewComponent implements OnInit, OnChanges {
   @Output() signCase = new EventEmitter<void>();
   @Output() cancelSession = new EventEmitter<void>();
   @Output() endSession = new EventEmitter<void>();
+  @Output() timeUp = new EventEmitter<void>();
+
+  @ViewChild('thirtySecondWarning') thirtySecondWarning!: ElementRef<HTMLAudioElement>;
+  @ViewChild('ninetySecondWarning') ninetySecondWarning!: ElementRef<HTMLAudioElement>;
 
   quotes = [
     `Nobody cares, sign it already`,
@@ -62,9 +67,28 @@ export class WorkViewComponent implements OnInit, OnChanges {
     const duration = (this.currentCase.to - this.currentCase.from);
     const endTimeForCase = new Date(this.addMins(duration));
     const totalTimeForCase = dayjs(endTimeForCase).diff(new Date());
+    let thirySecondWarningPlayed = false;
+    let ninetySecondWarningPlayed = false;
+
     this.timeLeft$ = timer(0, 1000).pipe(
       map(_ => dayjs(endTimeForCase).diff(new Date())),
       map(millisecondDifference => {
+        if (!this.isOverTime && millisecondDifference <= 0) {
+          this.isOverTime = true;
+          this.timeUp.emit();
+        }
+
+        if (millisecondDifference <= 30 * 1000 && !thirySecondWarningPlayed) {
+          thirySecondWarningPlayed = true;
+          this.thirtySecondWarning.nativeElement.play();
+        }
+
+        if (millisecondDifference <= 90 * 1000 && !ninetySecondWarningPlayed) {
+          ninetySecondWarningPlayed = true;
+          this.ninetySecondWarning.nativeElement.play();
+        }
+
+
         this.isOverTime = millisecondDifference <= 0;
         this.sessionService.negativeTime = this.isOverTime;
         this.sessionService.timeLeftPercentage = Math.floor((millisecondDifference / totalTimeForCase) * 100)
@@ -106,10 +130,12 @@ export class WorkViewComponent implements OnInit, OnChanges {
 
   onSignCase() {
     this.signCase.emit();
+    this.isOverTime = false;
   }
 
   onCancelSession() {
     this.cancelSession.emit();
+    this.isOverTime = false;
   }
 
   formatSecondsWithZeroPadding(seconds: number) {
@@ -126,6 +152,7 @@ export class WorkViewComponent implements OnInit, OnChanges {
 
   onEndSession() {
     this.endSession.emit();
+    this.isOverTime = false;
   }
 
   addMins(mins: number) {

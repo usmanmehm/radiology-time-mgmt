@@ -63,6 +63,9 @@ export class AppComponent {
   @ViewChild('signCaseWarningAudio') signCaseWarningAudio!: ElementRef<HTMLAudioElement>;
   @ViewChild('signCaseDangerAudio') signCaseDangerAudio!: ElementRef<HTMLAudioElement>;
   @ViewChild('signCaseOverTime') signCaseOverTime!: ElementRef<HTMLAudioElement>;
+  @ViewChild('allCasesCompleted') allCasesCompleted!: ElementRef<HTMLAudioElement>;
+  @ViewChild('startSessionAudio') startSessionAudio!: ElementRef<HTMLAudioElement>;
+  @ViewChild('timeUpForCase') timeUpForCase!: ElementRef<HTMLAudioElement>;
 
   constructor(public sessionService: WorkingSessionService) {}
 
@@ -70,6 +73,8 @@ export class AppComponent {
     if (sessionStart) {
       this.totalCases = 0;
       this.currentCaseNumber = undefined;
+      this.startSessionAudio.nativeElement.play();
+
     }
 
 
@@ -189,11 +194,16 @@ export class AppComponent {
     return `${minute}:${minute}`;
   }
 
+  onTimeUp() {
+    this.timeUpForCase.nativeElement.play();
+  }
+
   onSignCase() {
     this.playSignCaseAudio();
 
     if (this.sessionDetails.numCases === this.previousCases.length + 1) {
       alert("YOU'RE ALL DONE!");
+      this.allCasesCompleted.nativeElement.play();
       this.currentCaseNumber = undefined;
       this.onEndSession();
       return;

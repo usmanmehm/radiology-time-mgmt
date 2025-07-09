@@ -9,7 +9,10 @@
     <h2><b></b> "{{ motivationalQuote }}"</h2>
 
     <div class="button-container">
-        <button mat-stroked-button (click)="onSignCase()">Sign Case</button>
+        <button mat-fab extended class="large" (click)="onSignCase()">
+            <mat-icon>check_box</mat-icon>
+            Sign Case
+        </button>
         <!-- <button (click)="onCancelSession()">Cancel</button> -->
         <button mat-stroked-button (click)="onEndSession()">End</button>
     </div>
@@ -18,3 +21,11 @@
 <ng-template #loadingSpinner>
     <mat-progress-spinner></mat-progress-spinner>
 </ng-template>
+
+
+<audio #thirtySecondWarning>
+    <source src="sounds/30swarning.mp3" type="audio/mpeg">
+</audio>
+<audio #ninetySecondWarning>
+    <source src="sounds/90swarning.mp3" type="audio/mpeg">
+</audio>

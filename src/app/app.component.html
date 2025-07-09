@@ -16,6 +16,7 @@
             [previousCases]="previousCases"
             (signCase)="onSignCase()"
             (endSession)="onEndSession()"
+            (timeUp)="onTimeUp()"
         ></app-work-view>
     </div>
 
@@ -41,4 +42,13 @@
 </audio>
 <audio #signCaseOverTime>
   <source src="sounds/signovertime.mp3" type="audio/mpeg">
+</audio>
+<audio #allCasesCompleted>
+  <source src="sounds/100done.mp3" type="audio/mpeg">
+</audio>
+<audio #startSessionAudio>
+  <source src="sounds/startsession.mp3" type="audio/mpeg">
+</audio>
+<audio #timeUpForCase>
+  <source src="sounds/timeup.mp3" type="audio/mpeg">
 </audio>
