@@ -1,8 +1,8 @@
 <div class="container" *ngIf="currentCase; else loadingSpinner">
     <h1 [class.over-time]="isOverTime">Time left to finish case: {{ timeLeft$ | async }}</h1>
     <p><b>Current Case:</b> {{ currentCase.description }}</p>
-    <p *ngIf="totalCases && caseNumber !== undefined"><b>Cases remaining:</b> {{ totalCases - caseNumber }}</p>
-    <p><b>Completed cases:</b> {{ caseNumber }} / {{ totalCases }}</p>
+    <p *ngIf="totalCases && caseNumber !== undefined"><b>Cases remaining:</b> {{ totalCases - caseNumber }} / {{ totalCases }}</p>
+    <p *ngIf="totalCases && caseNumber !== undefined"><b>Completed cases:</b> {{ caseNumber }} / {{ totalCases }} ({{ caseNumber / totalCases * 100 }}%)</p>
     <p><b>Time per case allowed:</b> {{ formattedTimePerCase }} minutes</p>
     <p><b>Current pace:</b> {{ pace }} minutes</p>
     <p><b>Session End Time:</b> {{ sessionEndTime }}</p>

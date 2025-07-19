@@ -39,6 +39,7 @@ export class WorkViewComponent implements OnInit, OnChanges {
     `Remember Allah in times of ease, He'll remember you in times of difficulty`,
     `Bismillah and intention`,
     `Resolve`,
+    `One foot in front of another`,
   ];
   secondsOnEachQuote = 60;
 
