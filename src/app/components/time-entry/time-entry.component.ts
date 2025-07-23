@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import {MatTimepickerModule} from '@angular/material/timepicker';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -17,16 +17,19 @@ import { BreakInfo, SessionInfo } from '../../app.component';
   templateUrl: './time-entry.component.html',
   styleUrl: './time-entry.component.scss'
 })
-export class TimeEntryComponent {
+export class TimeEntryComponent implements OnInit {
   breaks!: BreakInfo[];
   startTime = new Date();
-  endTime = new Date(this.addMins(40));
+  endTime = new Date();
   timePerCase = 15;
   numCases = 10;
 
   @Output() breakAdded: EventEmitter<{ start: Date, end: Date }> = new EventEmitter();
   @Output() onSessionStart: EventEmitter<SessionInfo> = new EventEmitter();
 
+  ngOnInit(): void {
+    this.endTime.setHours(18, 0);
+  }
 
   addBreak() {
     if (!this.breaks) {

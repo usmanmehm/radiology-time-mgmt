@@ -2,7 +2,13 @@
     <h2>Working Session Info</h2>
     <mat-form-field>
         <mat-label>Pick an end time</mat-label>
-        <input name="end-time" matInput [matTimepicker]="endTimePicker" [(ngModel)]="endTime">
+        <input 
+            name="end-time"
+            matInput
+            [matTimepicker]="endTimePicker"
+            matTimepickerMin="12:00"
+            [(ngModel)]="endTime"
+        >
         <mat-timepicker-toggle matIconSuffix [for]="endTimePicker"/>
         <mat-timepicker interval="5min" #endTimePicker/>
     </mat-form-field>
