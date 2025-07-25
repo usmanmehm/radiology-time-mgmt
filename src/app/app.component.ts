@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, ViewChild, viewChild } from '@angular/core';
 import { ChartComponent } from './components/chart/chart.component';
 import { TimeEntryComponent } from './components/time-entry/time-entry.component';
 import dayjs from 'dayjs';
@@ -6,6 +6,8 @@ import { WorkViewComponent } from './components/work-view/work-view.component';
 import { CommonModule } from '@angular/common';
 import { ProgressBarComponent } from "./components/progress-bar/progress-bar.component";
 import { WorkingSessionService } from './services/working-session.service';
+import { MatDialog } from '@angular/material/dialog';
+import { RadDialogComponent } from './components/rad-dialog/rad-dialog.component';
 
 export interface SessionInfo {
   startTime: Date;
@@ -58,6 +60,8 @@ export class AppComponent {
 
   timePerCase!: number;
   totalCases = 0;
+
+  dialog = inject(MatDialog);
 
   @ViewChild('signCaseAudio') signCaseAudio!: ElementRef<HTMLAudioElement>;
   @ViewChild('signCaseWarningAudio') signCaseWarningAudio!: ElementRef<HTMLAudioElement>;
@@ -224,10 +228,25 @@ export class AppComponent {
   }
 
   onEndSession() {
+    this.openDialog();
     this.sessionInProgress = false;
     this.breaks = [];
     this.workingSessions = [];
     this.previousCases = [];
+  }
+
+  openDialog(): void {
+    this.dialog.open(RadDialogComponent, {
+      width: '450px',
+      height: '400px',
+      data: {
+        header: 'Session Summary',
+        timePerCase: this.sessionService.timePerCase,
+        startTime: this.startTime,
+        endTime: this.endTime,
+        casesCompleted: this.previousCases.length
+      }
+    });
   }
 
   playSignCaseAudio() {
