@@ -1,0 +1,12 @@
+<h2 mat-dialog-title>Session Summary</h2>
+<mat-dialog-content>
+  <p>Average time per case: {{ data.timePerCase }}</p>
+  <p>Start time: {{ data.startTime }}</p>
+  <p>End time: {{ data.endTime }}</p>
+  <p>Cases Completed: {{ data.casesCompleted }}</p>
+  
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button matButton mat-dialog-close cdkFocusInitial>Ok</button>
+</mat-dialog-actions>

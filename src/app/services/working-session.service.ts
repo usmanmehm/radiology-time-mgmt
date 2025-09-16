@@ -13,6 +13,7 @@ export class WorkingSessionService {
   timeLeftPercentage = 100;
   casesLeftPercentage = 0;
   casesLeftText = ''
+  timePerCase = '';
 
   constructor() { }
 }

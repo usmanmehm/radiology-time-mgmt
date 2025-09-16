@@ -120,6 +120,7 @@ export class WorkViewComponent implements OnInit, OnChanges {
     const paceMinutes = Math.floor((timePerCase / 1000 / 60));
     const paceSeconds = Math.floor(timePerCase / 1000 % 60);
     this.pace = this.formatTime(paceMinutes, paceSeconds, true);
+    this.sessionService.timePerCase = this.pace;
   }
 
   toggleBetweenQuotes() {
