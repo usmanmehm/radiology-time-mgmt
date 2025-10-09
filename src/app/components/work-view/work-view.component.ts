@@ -2,7 +2,7 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import dayjs from 'dayjs';
 import { interval, map, Observable, tap, timer } from 'rxjs';
-import { BlockOfTime } from '../../app.component';
+import { BlockOfTime, BreakInfo } from '../../app.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { WorkingSessionService } from '../../services/working-session.service';
@@ -22,6 +22,7 @@ export class WorkViewComponent implements OnInit, OnChanges {
   @Input() totalCases!: number;
   @Input() timePerCase!: number;
   @Input() previousCases!: BlockOfTime[];
+  @Input() breaks: BreakInfo[] = [];
 
   formattedTimePerCase!: string;
   motivationalQuote!: string;
@@ -29,14 +30,19 @@ export class WorkViewComponent implements OnInit, OnChanges {
   isOverTime = false;
 
   timeLeft$!: Observable<string>;
+  breakTimeLeft$!: Observable<string>;
 
   @Output() signCase = new EventEmitter<void>();
   @Output() cancelSession = new EventEmitter<void>();
   @Output() endSession = new EventEmitter<void>();
   @Output() timeUp = new EventEmitter<void>();
+  @Output() endBreak = new EventEmitter<number>();
 
   @ViewChild('thirtySecondWarning') thirtySecondWarning!: ElementRef<HTMLAudioElement>;
   @ViewChild('ninetySecondWarning') ninetySecondWarning!: ElementRef<HTMLAudioElement>;
+  @ViewChild('breakStartAudio') breakStartAudio!: ElementRef<HTMLAudioElement>;
+  @ViewChild('breakEndedAudio') breakEndedAudio!: ElementRef<HTMLAudioElement>;
+  @ViewChild('breakEndingSoonAudio') breakEndingSoonAudio!: ElementRef<HTMLAudioElement>;
 
   quotes = [
     `Nobody cares, sign it already`,
@@ -50,7 +56,7 @@ export class WorkViewComponent implements OnInit, OnChanges {
 
   currentQuoteIndex = 0;
 
-  constructor(private sessionService: WorkingSessionService) {}
+  constructor(public sessionService: WorkingSessionService) {}
 
   ngOnInit(): void {
     this.toggleBetweenQuotes();
@@ -58,12 +64,77 @@ export class WorkViewComponent implements OnInit, OnChanges {
   }
   
   ngOnChanges(changes: SimpleChanges): void {
+    this.updateBreakState();
     this.getTimeLeft();
     this.calculatePace();
   }
 
+  updateBreakState() {
+    const now = dayjs();
+    const activeIndex = (this.breaks || []).findIndex(b => now.isAfter(dayjs(b.start)) && now.isBefore(dayjs(b.end)));
+    const isOnBreak = activeIndex >= 0;
+    
+    // Play break start audio when entering a break
+    if (isOnBreak && !this.wasOnBreak) {
+      this.breakStartAudio.nativeElement.play();
+      this.breakEndingSoonPlayed = false; // Reset warning flag for new break
+    }
+    
+    // Play break ended audio when exiting a break
+    if (!isOnBreak && this.wasOnBreak) {
+      this.breakEndedAudio.nativeElement.play();
+    }
+    
+    if (isOnBreak) {
+      const breakStart = this.breaks[activeIndex].start;
+      const breakEnd = this.breaks[activeIndex].end;
+      const totalBreakDuration = dayjs(breakEnd).diff(dayjs(breakStart));
+      
+      this.breakTimeLeft$ = timer(0, 1000).pipe(
+        map(_ => dayjs(breakEnd).diff(new Date())),
+        map(millisecondDifference => {
+          const mins = Math.floor(millisecondDifference / 1000 / 60);
+          const secs = Math.floor(millisecondDifference / 1000 % 60);
+          
+          // Calculate break progress percentage
+          const breakProgressPercentage = Math.max(0, Math.min(100, (millisecondDifference / totalBreakDuration) * 100));
+          this.sessionService.timeLeftPercentage = Math.floor(breakProgressPercentage);
+          
+          // Play break ending soon warning (30 seconds before break ends)
+          if (millisecondDifference <= 30 * 1000 && !this.breakEndingSoonPlayed) {
+            this.breakEndingSoonPlayed = true;
+            this.breakEndingSoonAudio.nativeElement.play();
+          }
+          
+          // During break, clear danger/warning indicators
+          this.sessionService.showWarning = false;
+          this.sessionService.showDanger = false;
+          this.sessionService.negativeTime = false;
+          const val = this.formatTime(mins, secs, true);
+          this.sessionService.timeLeft = val;
+          return val;
+        })
+      );
+    }
+    
+    // Store flag for template via class field
+    this.isOnBreak = isOnBreak;
+    this.currentBreakIndex = isOnBreak ? activeIndex : null;
+    this.wasOnBreak = isOnBreak;
+  }
+
+  isOnBreak = false;
+  currentBreakIndex: number | null = null;
+  private wasOnBreak = false;
+  private breakEndingSoonPlayed = false;
+
   getTimeLeft() {
     if (!this.currentCase) return;
+
+    if (this.isOnBreak) {
+      // When on break, do not start case countdown; it will resume after break
+      return;
+    }
 
     const duration = (this.currentCase.to - this.currentCase.from);
     const endTimeForCase = new Date(this.addMins(duration));
@@ -155,6 +226,12 @@ export class WorkViewComponent implements OnInit, OnChanges {
   onEndSession() {
     this.endSession.emit();
     this.isOverTime = false;
+  }
+
+  onEndBreakEarly() {
+    if (this.currentBreakIndex !== null) {
+      this.endBreak.emit(this.currentBreakIndex);
+    }
   }
 
   addMins(mins: number) {

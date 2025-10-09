@@ -14,9 +14,11 @@
             [sessionEndTime]="sessionEndTime"
             [caseNumber]="currentCaseNumber"
             [previousCases]="previousCases"
+            [breaks]="sessionDetails.breaks || []"
             (signCase)="onSignCase()"
             (endSession)="onEndSession()"
             (timeUp)="onTimeUp()"
+            (endBreak)="onEndBreak($event)"
         ></app-work-view>
     </div>
 

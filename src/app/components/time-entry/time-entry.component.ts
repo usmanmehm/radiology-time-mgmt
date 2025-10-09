@@ -58,6 +58,15 @@ export class TimeEntryComponent implements OnInit {
   }
 
   startSession() {
+    // Check for unconfirmed breaks
+    const unconfirmedBreaks = this.breaks?.filter(el => !el.confirmed) || [];
+    if (unconfirmedBreaks.length > 0) {
+      const confirmed = confirm(`You have ${unconfirmedBreaks.length} unconfirmed break(s). These will be ignored. Do you want to continue?`);
+      if (!confirmed) {
+        return;
+      }
+    }
+
     this.onSessionStart.emit({
       startTime: new Date(),
       endTime: this.endTime,

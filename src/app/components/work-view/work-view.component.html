@@ -1,14 +1,24 @@
 <div class="container" *ngIf="currentCase; else loadingSpinner">
-    <h1 [class.over-time]="isOverTime">Time left to finish case: {{ timeLeft$ | async }}</h1>
-    <p><b>Current Case:</b> {{ currentCase.description }}</p>
-    <p *ngIf="totalCases && caseNumber !== undefined"><b>Cases remaining:</b> {{ totalCases - caseNumber }} / {{ totalCases }}</p>
-    <p *ngIf="totalCases && caseNumber !== undefined"><b>Completed cases:</b> {{ caseNumber }} / {{ totalCases }} ({{ caseNumber / totalCases * 100 }}%)</p>
-    <p><b>Time per case allowed:</b> {{ formattedTimePerCase }} minutes</p>
-    <p><b>Current pace:</b> {{ pace }} minutes</p>
-    <p><b>Session End Time:</b> {{ sessionEndTime }}</p>
+    <div class="break-banner" *ngIf="isOnBreak">
+        <h1>You are on a break</h1>
+        <p><b>Break ends in:</b> {{ breakTimeLeft$ | async }}</p>
+        <div class="button-container">
+            <button mat-stroked-button color="primary" (click)="onEndBreakEarly()">End Break</button>
+        </div>
+        <hr/>
+    </div>
+    <ng-container *ngIf="!isOnBreak">
+        <h1 [class.over-time]="isOverTime">Time left in current session: {{ timeLeft$ | async }}</h1>
+        <p><b>Current Case:</b> {{ currentCase.description }}</p>
+        <p *ngIf="totalCases && caseNumber !== undefined"><b>Cases remaining:</b> {{ sessionService.casesLeftText }}</p>
+        <p *ngIf="totalCases && caseNumber !== undefined"><b>Completed cases:</b> {{ caseNumber }} / {{ totalCases }} ({{ caseNumber / totalCases * 100 }}%)</p>
+        <p><b>Time per case allowed:</b> {{ formattedTimePerCase }} minutes</p>
+        <p><b>Current pace:</b> {{ pace }} minutes</p>
+        <p><b>Session End Time:</b> {{ sessionEndTime }}</p>
+    </ng-container>
     <h2><b></b> "{{ motivationalQuote }}"</h2>
 
-    <div class="button-container">
+    <div class="button-container" *ngIf="!isOnBreak">
         <button mat-fab extended class="large" (click)="onSignCase()">
             <mat-icon>check_box</mat-icon>
             Sign Case
@@ -28,4 +38,13 @@
 </audio>
 <audio #ninetySecondWarning>
     <source src="sounds/90swarning.mp3" type="audio/mpeg">
+</audio>
+<audio #breakStartAudio>
+    <source src="sounds/breakstart.mp3" type="audio/mpeg">
+</audio>
+<audio #breakEndedAudio>
+    <source src="sounds/breakended.mp3" type="audio/mpeg">
+</audio>
+<audio #breakEndingSoonAudio>
+    <source src="sounds/breakendingsoon.mp3" type="audio/mpeg">
 </audio>

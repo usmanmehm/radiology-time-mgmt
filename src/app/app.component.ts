@@ -105,7 +105,7 @@ export class AppComponent {
       this.sessionService.casesLeftPercentage = Math.floor(casesLeft / details.numCases * 100);
       this.sessionService.casesLeftText = `${casesLeft}/${details.numCases}`
 
-      const timePerCase = this.millisecondsToMinutes(((dayjs(details.endTime).diff(dayjs(new Date())) - totalBreakTimeMs) / casesLeft));
+      const timePerCase = this.millisecondsToMinutes(((dayjs(details.endTime).diff(dayjs(details.startTime)) - totalBreakTimeMs) / casesLeft));
       const blocksOfTime: BlockOfTime[] = [];
       let startTime = this.getMinutePosition(details.startTime);
       for (let i = 0; i < details.numCases; i++) {
@@ -137,13 +137,13 @@ export class AppComponent {
             blocksOfTime.push({
               from: startTime,
               to: this.getMinutePosition(details.breaks[breakOverlapsWithEnd].start) - 1,
-              description: 'Case #' + (i + 1) + ' - First Session'
+              description: 'Case #' + (i + 1) + ' - First Session (before break)'
             });
   
             blocksOfTime.push({
               from: this.getMinutePosition(details.breaks[breakOverlapsWithEnd].end) + 1,
               to: startTime1 + timeLeftAfterFirstSession,
-              description: 'Case #' + (i + 1) + ' - Second Session'
+              description: 'Case #' + (i + 1) + ' - Second Session (after break)'
             });
           }
   
@@ -177,7 +177,12 @@ export class AppComponent {
     }
 
     this.sessionInProgress = true;
-    this.currentCaseNumber = this.currentCaseNumber === undefined ? 0 : this.currentCaseNumber + 1;
+    // Only increment case number on initial session start, not on recalculation
+    if (sessionStart) {
+      this.currentCaseNumber = 0;
+    } else if (this.currentCaseNumber === undefined) {
+      this.currentCaseNumber = 0;
+    }
     this.currentCase = this.workingSessions[this.currentCaseNumber as number];
     this.currentCase.startTime = new Date();
   }
@@ -193,9 +198,11 @@ export class AppComponent {
   formatDisplayTime(time: number): string {
     // want to display as mm:ss
     // fix
-    const minute = Math.floor(time%60);
-    const second = Math.floor(time/60);
-    return `${minute}:${minute}`;
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    const mm = String(minutes).padStart(2, '0');
+    const ss = String(seconds).padStart(2, '0');
+    return `${mm}:${ss}`;
   }
 
   onTimeUp() {
@@ -205,7 +212,17 @@ export class AppComponent {
   onSignCase() {
     this.playSignCaseAudio();
 
-    if (this.sessionDetails.numCases === this.previousCases.length + 1) {
+    // Add the completed case to previous cases
+    this.previousCases.push({
+      ...this.currentCase,
+      to: this.getMinutePosition(new Date()),
+      endTime: new Date()
+    });
+
+    // Increment case number
+    this.currentCaseNumber = (this.currentCaseNumber || 0) + 1;
+
+    if (this.sessionDetails.numCases === this.previousCases.length) {
       alert("YOU'RE ALL DONE!");
       this.allCasesCompleted.nativeElement.play();
       this.currentCaseNumber = undefined;
@@ -213,28 +230,10 @@ export class AppComponent {
       return;
     }
 
-    // to calculate the new durations / pacing
-    // we need to get the session end time
-    // subtract the duration of all of the breaks
-    // and then divide by the number of working sessions left
-    const minsTillEndTime = dayjs(this.sessionEndDate).diff(this.sessionEndDate) / 1000 / 60;
-    const totalBreakTimeMins = (this.breaks || []).reduce(
-      (accumulator, currentValue) => {
-        return accumulator + (currentValue.to - currentValue.from)
-      },
-      0,
-    );
-    const newDuration = (minsTillEndTime - totalBreakTimeMins) / (this.workingSessions.length - 1);
-    this.previousCases.push({
-      ...this.currentCase,
-      to: this.getMinutePosition(new Date()),
-      endTime: new Date()
-    });
-
+    // Recalculate session details with updated case count
     this.setSessionDetails({
       ...this.sessionDetails,
-    })
-
+    });
   }
 
   onEndSession() {
@@ -243,6 +242,16 @@ export class AppComponent {
     this.breaks = [];
     this.workingSessions = [];
     this.previousCases = [];
+  }
+
+  onEndBreak(index: number) {
+    if (!this.sessionDetails?.breaks?.length) return;
+    // end the break early by setting end to now
+    const updatedBreaks = [...(this.sessionDetails.breaks || [])];
+    updatedBreaks[index] = { ...updatedBreaks[index], end: new Date(), confirmed: true };
+    this.sessionDetails = { ...this.sessionDetails, breaks: updatedBreaks };
+    // Recalculate schedule based on updated breaks
+    this.setSessionDetails(this.sessionDetails);
   }
 
   openDialog(): void {
