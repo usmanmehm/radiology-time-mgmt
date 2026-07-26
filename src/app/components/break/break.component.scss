@@ -11,4 +11,15 @@
     background-color: green;
     color: white;
     margin-right: 18px;
+
+    &:disabled {
+        background-color: rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.4);
+    }
+}
+
+.error {
+    color: #ff6b6b;
+    font-size: 13px;
+    margin: -8px 0 8px;
 }

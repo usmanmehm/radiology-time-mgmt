@@ -8,16 +8,63 @@ form {
     display: flex;
     flex-flow: column;
     width: 90%;
+    max-width: 500px;
     margin-top: 40px;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: white;
+}
+
+mat-form-field {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.mode-toggle {
+    align-self: center;
+    margin-bottom: 20px;
+}
+
+.estimate {
+    margin: -10px 0 20px;
+    color: rgba(255, 255, 255, 0.7);
+
+    b {
+        color: #5ebbae;
+    }
 }
 
 .form-field {
     display: flex;
     justify-content: space-between;
-    // gap: 30px;
     margin: 20px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 button {
     margin-top: 12px;
+    min-width: 120px;
+    
+    &[mat-stroked-button] {
+        background-color: #1976d2;
+        color: white;
+        
+        &:hover {
+            background-color: #1565c0;
+        }
+    }
 }

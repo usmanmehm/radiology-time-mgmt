@@ -1,0 +1,49 @@
+<div class="setup-card">
+    <h2>Plan Today's Shift</h2>
+    <p class="subtitle">Build a mixed worklist instead of one flat case count — every study type gets its own time budget.</p>
+
+    <mat-form-field>
+        <mat-label>Shift ends at</mat-label>
+        <input matInput name="shift-end" [matTimepicker]="shiftEndPicker" [(ngModel)]="shiftEnd">
+        <mat-timepicker-toggle matIconSuffix [for]="shiftEndPicker"/>
+        <mat-timepicker interval="5min" #shiftEndPicker/>
+    </mat-form-field>
+
+    <h3>Case Types</h3>
+    <div class="case-type-row" *ngFor="let ct of caseTypes; let i = index">
+        <mat-form-field>
+            <mat-label>Study type</mat-label>
+            <input matInput placeholder="e.g. CT Chest" [(ngModel)]="ct.name" [name]="'type-name-' + i">
+        </mat-form-field>
+        <mat-form-field class="narrow">
+            <mat-label>Count</mat-label>
+            <input matInput type="number" [(ngModel)]="ct.count" [name]="'type-count-' + i">
+        </mat-form-field>
+        <mat-form-field class="narrow">
+            <mat-label>Mins/case</mat-label>
+            <input matInput type="number" [(ngModel)]="ct.targetMinutes" [name]="'type-mins-' + i">
+        </mat-form-field>
+        <button mat-icon-button (click)="removeCaseType(i)" title="Remove this study type" type="button">
+            <mat-icon>delete</mat-icon>
+        </button>
+    </div>
+
+    <button mat-button (click)="addCaseType()" type="button"><mat-icon>add</mat-icon>Add Study Type</button>
+
+    <div class="totals">
+        <span><b>{{ totalCases }}</b> cases queued</span>
+        <span><b>{{ totalBudgetedHours }}</b> budgeted hours</span>
+    </div>
+
+    <h3>Breaks <span class="optional">(optional — you can also take one on demand mid-shift)</span></h3>
+    <app-break [breaks]="breaks" [maxTime]="shiftEnd"></app-break>
+    <button mat-button (click)="addBreak()" type="button"><mat-icon>add</mat-icon>Add Break</button>
+
+    <div class="button-group">
+        <button mat-raised-button color="primary" (click)="startShift()">Start Shift</button>
+    </div>
+</div>
+
+<audio #startSessionAudio>
+    <source src="sounds/startsession.mp3" type="audio/mpeg">
+</audio>

@@ -1,22 +1,52 @@
-section {
+.app-nav {
     display: flex;
+    align-items: center;
+    gap: 32px;
+    padding: 14px 24px;
+    background-color: #171c1c;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 
-    .chart {
-        width: 30%;
-        height: 700px;
-        margin-top: 40px;
+    .brand {
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        font-size: 18px;
     }
 
-    .time-entry {
-        width: 50%;
+    .tabs {
+        display: flex;
+        gap: 8px;
 
-        &.in-progress {
-            display: none;
+        a {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.65);
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.15s ease, color 0.15s ease;
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.06);
+                color: white;
+            }
+
+            &.active {
+                background-color: rgba(94, 187, 174, 0.18);
+                color: #5ebbae;
+            }
+
+            .badge {
+                font-size: 10px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                background-color: #5ebbae;
+                color: #08201c;
+                padding: 2px 6px;
+                border-radius: 999px;
+            }
         }
     }
-}
-
-app-progress-bar {
-    margin-left: 35px;
-    margin-top: 70px;
 }

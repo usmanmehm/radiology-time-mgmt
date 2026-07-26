@@ -1,8 +1,14 @@
 <form action="">
     <h2>Working Session Info</h2>
-    <mat-form-field>
+
+    <mat-button-toggle-group class="mode-toggle" [(ngModel)]="mode" name="mode" aria-label="Scheduling mode">
+        <mat-button-toggle [value]="Modes.NumCases">By End Time</mat-button-toggle>
+        <mat-button-toggle [value]="Modes.TimePerCase">By Time Per Case</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <mat-form-field *ngIf="mode === Modes.NumCases">
         <mat-label>Pick an end time</mat-label>
-        <input 
+        <input
             name="end-time"
             matInput
             [matTimepicker]="endTimePicker"
@@ -11,21 +17,23 @@
         <mat-timepicker-toggle matIconSuffix [for]="endTimePicker"/>
         <mat-timepicker interval="5min" #endTimePicker/>
     </mat-form-field>
-    <mat-form-field>
+
+    <mat-form-field *ngIf="mode === Modes.TimePerCase">
         <mat-label>Time per case (mins)</mat-label>
         <input name="time-per-case" matInput placeholder="Enter value in minutes" [(ngModel)]="timePerCase" type="number">
-      </mat-form-field>
+    </mat-form-field>
+
     <mat-form-field>
         <mat-label>Number of Cases</mat-label>
         <input name="num-cases" matInput placeholder="Enter number of cases" [(ngModel)]="numCases" type="number">
     </mat-form-field>
 
-    <app-break [breaks]="breaks"></app-break>
+    <p class="estimate" *ngIf="mode === Modes.TimePerCase">Estimated end time: <b>{{ estimatedEndTimeLabel }}</b></p>
 
-   
+    <app-break [breaks]="breaks" [maxTime]="effectiveEndTime"></app-break>
+
+    <div class="button-group">
+        <button (click)="addBreak()" mat-button type="button"><mat-icon>add</mat-icon>Add Break</button>
+        <button (click)="startSession()" mat-stroked-button color="primary" type="button">Start Session</button>
+    </div>
 </form>
-
-<button (click)="addBreak()" mat-button><mat-icon>add</mat-icon>Add Break</button>
-<button (click)="startSession()"  mat-stroked-button>Start Session</button>
-
-

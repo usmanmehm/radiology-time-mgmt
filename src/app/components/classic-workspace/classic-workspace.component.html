@@ -1,0 +1,56 @@
+<section>
+    <app-progress-bar *ngIf="sessionInProgress" [percentage]="sessionService.timeLeftPercentage" [caption]="sessionService.timeLeft" [barColor]="sessionService.showDanger ? 'red' : sessionService.showWarning ? '#FFBF00' : 'green'"></app-progress-bar>
+    <app-progress-bar *ngIf="sessionInProgress" barColor="darkblue" [percentage]="sessionService.casesLeftPercentage" [caption]="sessionService.casesLeftText"></app-progress-bar>
+    <!-- <app-progress-bar *ngIf="sessionInProgress" [percentage]="65"></app-progress-bar> -->
+    <div class="time-entry" *ngIf="!sessionInProgress">
+        <time-entry (onSessionStart)="setSessionDetails($event, true)"></time-entry>
+    </div>
+
+    <div class="work-view" *ngIf="sessionInProgress">
+        <app-work-view
+            [currentCase]="currentCase"
+            [totalCases]="totalCases"
+            [timePerCase]="timePerCase"
+            [sessionEndTime]="sessionEndTime"
+            [caseNumber]="currentCaseNumber"
+            [previousCases]="previousCases"
+            [breaks]="sessionDetails.breaks || []"
+            (signCase)="onSignCase()"
+            (endSession)="onEndSession()"
+            (timeUp)="onTimeUp()"
+            (endBreak)="onEndBreak($event)"
+        ></app-work-view>
+    </div>
+
+    <div class="chart">
+        <app-chart
+            [startHour]="startTime"
+            [endHour]="endTime"
+            [workingSessions]="workingSessions"
+            [breaks]="breaks"
+            [heightInPixels]=1000>
+        </app-chart>
+    </div>
+</section>
+
+<audio #signCaseAudio>
+  <source src="sounds/signgreen.mp3" type="audio/mpeg">
+</audio>
+<audio #signCaseWarningAudio>
+  <source src="sounds/signyellow.mp3" type="audio/mpeg">
+</audio>
+<audio #signCaseDangerAudio>
+  <source src="sounds/signred.mp3" type="audio/mpeg">
+</audio>
+<audio #signCaseOverTime>
+  <source src="sounds/signovertime.mp3" type="audio/mpeg">
+</audio>
+<audio #allCasesCompleted>
+  <source src="sounds/100done.mp3" type="audio/mpeg">
+</audio>
+<audio #startSessionAudio>
+  <source src="sounds/startsession.mp3" type="audio/mpeg">
+</audio>
+<audio #timeUpForCase>
+  <source src="sounds/timeup.mp3" type="audio/mpeg">
+</audio>

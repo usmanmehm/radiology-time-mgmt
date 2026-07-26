@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { RadDialogComponent } from './rad-dialog.component';
 
@@ -8,7 +9,8 @@ describe('RadDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RadDialogComponent]
+      imports: [RadDialogComponent],
+      providers: [{ provide: MAT_DIALOG_DATA, useValue: {} }]
     })
     .compileComponents();
 

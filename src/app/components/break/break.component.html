@@ -13,8 +13,9 @@
         <mat-timepicker-toggle matIconSuffix [for]="breakEnd"/>
         <mat-timepicker interval="5min" #breakEnd/>
     </mat-form-field>
+    <p class="error" *ngIf="!break.confirmed && validationError(i) as err">{{ err }}</p>
     <div class="buttons">
-        <button *ngIf="!break.confirmed" (click)="confirmBreak(i)" (click)="break.confirmed = true" class="confirm-btn" mat-stroked-button>
+        <button *ngIf="!break.confirmed" (click)="confirmBreak(i)" [disabled]="!!validationError(i)" class="confirm-btn" mat-stroked-button>
             <mat-icon>check</mat-icon>
             Confirm
         </button>

@@ -1,18 +1,29 @@
 .container {
     width: 50vw;
+    max-width: 600px;
     display: flex;
     flex-flow: column;
     justify-content: center;
     align-items: center;
     margin-top: 50px;
+    padding: 20px;
 
     .button-container {
         display: flex;
         flex-flow: column;
+        gap: 15px;
+        width: 100%;
+        max-width: 300px;
     }
 
     button {
-        margin: 10px;
+        margin: 10px 0;
+        width: 100%;
+        
+        &.large {
+            height: 60px;
+            font-size: 18px;
+        }
     }
 
     b {
@@ -21,13 +32,82 @@
 
     h1 {
         font-size: 32px;
+        text-align: center;
+        margin-bottom: 20px;
+        transition: color 0.3s ease;
 
         &.over-time {
             color: red;
+            animation: pulse 1s infinite;
         }
     }
 
     h2 {
         text-align: center;
+        font-style: italic;
+        margin-top: 30px;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .info-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+        max-width: 500px;
+        margin: 20px 0;
+        
+        p {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            
+            &:last-child {
+                border-bottom: none;
+            }
+        }
+    }
+    
+    .break-banner {
+        background: linear-gradient(135deg, #006a6a 0%, #004d4d 100%);
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        
+        h1 {
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        
+        hr {
+            border-color: rgba(255, 255, 255, 0.2);
+            margin-top: 20px;
+        }
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        padding: 10px;
+        
+        h1 {
+            font-size: 24px;
+        }
     }
 }

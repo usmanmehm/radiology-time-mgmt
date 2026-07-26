@@ -1,0 +1,18 @@
+<div class="insights-shell">
+    <div class="insights-intro">
+        <h1>Insights</h1>
+        <p>A reimagined shift companion: mixed worklists, live throughput, fatigue-aware breaks, and history across shifts.</p>
+    </div>
+
+    <div class="insights-subnav">
+        <button [class.active]="view === 'setup'" [disabled]="shiftService.shiftActive" (click)="goTo('setup')">New Shift</button>
+        <button [class.active]="view === 'live'" [disabled]="!shiftService.shiftActive" (click)="goTo('live')">Live Shift</button>
+        <button [class.active]="view === 'history'" (click)="goTo('history')">History</button>
+    </div>
+
+    <div class="insights-body">
+        <app-insights-setup *ngIf="view === 'setup'" (shiftStarted)="onShiftStarted()"></app-insights-setup>
+        <app-insights-live *ngIf="view === 'live'" (shiftEnded)="onShiftEnded()"></app-insights-live>
+        <app-insights-history *ngIf="view === 'history'"></app-insights-history>
+    </div>
+</div>

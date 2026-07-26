@@ -1,0 +1,115 @@
+<div class="live-page" *ngIf="shiftService.currentItem as case_; else noActive">
+
+    <div class="break-banner" *ngIf="shiftService.isOnBreak">
+        <h2>On break</h2>
+        <p>Back to reading in <b>{{ shiftService.breakTimeLeft }}</b></p>
+        <button mat-stroked-button (click)="endBreakNow()">End Break Now</button>
+    </div>
+
+    <div class="fatigue-banner" *ngIf="shiftService.fatigueNudge">
+        <mat-icon>self_improvement</mat-icon>
+        <span>You've been reading for {{ shiftService.continuousWorkMinutes | number: '1.0-0' }} min straight. Consider a break.</span>
+        <div class="quick-breaks">
+            <button mat-stroked-button (click)="takeBreak(5)">5 min</button>
+            <button mat-stroked-button (click)="takeBreak(10)">10 min</button>
+            <button mat-stroked-button (click)="takeBreak(15)">15 min</button>
+        </div>
+    </div>
+
+    <div class="metrics-bar">
+        <div class="metric-card">
+            <span class="label">Cases / hr</span>
+            <span class="value">{{ shiftService.casesPerHour }}</span>
+        </div>
+        <div class="metric-card">
+            <span class="label">Completed</span>
+            <span class="value">{{ shiftService.completedCount }} / {{ shiftService.totalCases }}</span>
+        </div>
+        <div class="metric-card">
+            <span class="label">On pace</span>
+            <span class="value" [class.ahead]="shiftService.projectedFinishDeltaMinutes >= 0" [class.behind]="shiftService.projectedFinishDeltaMinutes < 0">{{ shiftService.projectedFinishDeltaMinutes >= 0 ? '+' : '' }}{{ shiftService.projectedFinishDeltaMinutes }}m</span>
+        </div>
+        <div class="metric-card">
+            <span class="label">Since last break</span>
+            <span class="value" [class.warn]="shiftService.fatigueNudge">{{ shiftService.continuousWorkMinutes | number: '1.0-0' }}m</span>
+        </div>
+    </div>
+
+    <div class="case-card" *ngIf="!shiftService.isOnBreak" [class.over-time]="shiftService.isCaseOverTime">
+        <span class="stat-badge" *ngIf="case_.stat">STAT</span>
+        <h1>{{ case_.typeName }}</h1>
+        <p class="countdown">{{ shiftService.timeLeftInCase }}</p>
+        <p class="target">Budget: {{ case_.targetMinutes }} min</p>
+    </div>
+
+    <div class="upcoming" *ngIf="shiftService.upcomingItems.length">
+        <span class="label">Next up:</span>
+        <span class="chip" *ngFor="let u of shiftService.upcomingItems">{{ u.typeName }}<b *ngIf="u.stat">STAT</b></span>
+    </div>
+
+    <div class="actions" *ngIf="!shiftService.isOnBreak">
+        <button mat-fab extended class="sign-btn" (click)="onSignCase()">
+            <mat-icon>check_box</mat-icon>
+            Sign Case
+        </button>
+        <button mat-stroked-button (click)="toggleStatForm()" type="button">
+            <mat-icon>bolt</mat-icon>
+            Add STAT Case
+        </button>
+        <button mat-stroked-button (click)="takeBreak(10)" type="button">
+            <mat-icon>free_breakfast</mat-icon>
+            Take a Break
+        </button>
+        <button mat-stroked-button color="warn" (click)="onEndShift()" type="button">End Shift</button>
+    </div>
+
+    <div class="stat-form" *ngIf="showStatForm">
+        <mat-form-field>
+            <mat-label>STAT study type</mat-label>
+            <input matInput [(ngModel)]="statName" name="stat-name" placeholder="e.g. CT Head">
+        </mat-form-field>
+        <mat-form-field class="narrow">
+            <mat-label>Target mins</mat-label>
+            <input matInput type="number" [(ngModel)]="statMinutes" name="stat-mins">
+        </mat-form-field>
+        <button mat-raised-button color="primary" (click)="submitStatCase()">Add to Front of Queue</button>
+    </div>
+</div>
+
+<ng-template #noActive>
+    <p class="empty-state">No active shift. Start one from the "New Shift" tab.</p>
+</ng-template>
+
+<audio #signCaseAudio>
+    <source src="sounds/signgreen.mp3" type="audio/mpeg">
+</audio>
+<audio #signCaseWarningAudio>
+    <source src="sounds/signyellow.mp3" type="audio/mpeg">
+</audio>
+<audio #signCaseDangerAudio>
+    <source src="sounds/signred.mp3" type="audio/mpeg">
+</audio>
+<audio #signCaseOverTime>
+    <source src="sounds/signovertime.mp3" type="audio/mpeg">
+</audio>
+<audio #allCasesCompleted>
+    <source src="sounds/100done.mp3" type="audio/mpeg">
+</audio>
+<audio #timeUpForCase>
+    <source src="sounds/timeup.mp3" type="audio/mpeg">
+</audio>
+<audio #thirtySecondWarning>
+    <source src="sounds/30swarning.mp3" type="audio/mpeg">
+</audio>
+<audio #ninetySecondWarning>
+    <source src="sounds/90swarning.mp3" type="audio/mpeg">
+</audio>
+<audio #breakStartAudio>
+    <source src="sounds/breakstart.mp3" type="audio/mpeg">
+</audio>
+<audio #breakEndedAudio>
+    <source src="sounds/breakended.mp3" type="audio/mpeg">
+</audio>
+<audio #breakEndingSoonAudio>
+    <source src="sounds/breakendingsoon.mp3" type="audio/mpeg">
+</audio>

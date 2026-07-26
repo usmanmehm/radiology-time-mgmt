@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { BlockOfTime, SessionInfo } from '../../app.component';
+import { BlockOfTime } from '../../models';
 import dayjs from 'dayjs';
 
 @Component({

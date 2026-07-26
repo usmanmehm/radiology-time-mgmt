@@ -2,7 +2,7 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import dayjs from 'dayjs';
 import { interval, map, Observable, tap, timer } from 'rxjs';
-import { BlockOfTime, BreakInfo } from '../../app.component';
+import { BlockOfTime, BreakInfo } from '../../models';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { WorkingSessionService } from '../../services/working-session.service';
@@ -28,6 +28,7 @@ export class WorkViewComponent implements OnInit, OnChanges {
   motivationalQuote!: string;
   pace!: string;
   isOverTime = false;
+  Math = Math; // Expose Math to template
 
   timeLeft$!: Observable<string>;
   breakTimeLeft$!: Observable<string>;
@@ -74,15 +75,18 @@ export class WorkViewComponent implements OnInit, OnChanges {
     const activeIndex = (this.breaks || []).findIndex(b => now.isAfter(dayjs(b.start)) && now.isBefore(dayjs(b.end)));
     const isOnBreak = activeIndex >= 0;
     
-    // Play break start audio when entering a break
+    // Play break start audio when entering a break. The ViewChild audio elements aren't
+    // resolved yet on the very first ngOnChanges (it runs before ngAfterViewInit), which
+    // happens whenever a session starts with a break already in progress - guard with `?.`
+    // so that case doesn't throw and permanently strand isOnBreak at its initial value.
     if (isOnBreak && !this.wasOnBreak) {
-      this.breakStartAudio.nativeElement.play();
+      this.breakStartAudio?.nativeElement.play();
       this.breakEndingSoonPlayed = false; // Reset warning flag for new break
     }
-    
+
     // Play break ended audio when exiting a break
     if (!isOnBreak && this.wasOnBreak) {
-      this.breakEndedAudio.nativeElement.play();
+      this.breakEndedAudio?.nativeElement.play();
     }
     
     if (isOnBreak) {
@@ -103,7 +107,7 @@ export class WorkViewComponent implements OnInit, OnChanges {
           // Play break ending soon warning (30 seconds before break ends)
           if (millisecondDifference <= 30 * 1000 && !this.breakEndingSoonPlayed) {
             this.breakEndingSoonPlayed = true;
-            this.breakEndingSoonAudio.nativeElement.play();
+            this.breakEndingSoonAudio?.nativeElement.play();
           }
           
           // During break, clear danger/warning indicators
@@ -152,12 +156,12 @@ export class WorkViewComponent implements OnInit, OnChanges {
 
         if (millisecondDifference <= 30 * 1000 && !thirySecondWarningPlayed) {
           thirySecondWarningPlayed = true;
-          this.thirtySecondWarning.nativeElement.play();
+          this.thirtySecondWarning?.nativeElement.play();
         }
 
         if (millisecondDifference <= 90 * 1000 && !ninetySecondWarningPlayed) {
           ninetySecondWarningPlayed = true;
-          this.ninetySecondWarning.nativeElement.play();
+          this.ninetySecondWarning?.nativeElement.play();
         }
 
 

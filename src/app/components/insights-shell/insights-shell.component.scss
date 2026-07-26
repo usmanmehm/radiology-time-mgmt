@@ -1,0 +1,54 @@
+.insights-shell {
+    padding: 24px 24px 48px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.insights-intro {
+    text-align: center;
+    margin-bottom: 24px;
+
+    h1 {
+        margin: 0 0 6px;
+    }
+
+    p {
+        color: rgba(255, 255, 255, 0.6);
+        margin: 0;
+    }
+}
+
+.insights-subnav {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 28px;
+
+    button {
+        background: none;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.7);
+        padding: 8px 18px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+        &:hover:not(:disabled) {
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        &.active {
+            background-color: #5ebbae;
+            border-color: #5ebbae;
+            color: #08201c;
+        }
+
+        &:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+    }
+}

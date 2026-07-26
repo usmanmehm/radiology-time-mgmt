@@ -1,0 +1,50 @@
+section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    max-width: 100%;
+
+    .chart {
+        width: 30%;
+        min-width: 300px;
+        height: 700px;
+        margin-top: 40px;
+        flex: 1 1 300px;
+    }
+
+    .time-entry {
+        width: 50%;
+        min-width: 300px;
+        flex: 1 1 300px;
+
+        &.in-progress {
+            display: none;
+        }
+    }
+}
+
+app-progress-bar {
+    margin-left: 35px;
+    margin-top: 70px;
+}
+
+@media (max-width: 768px) {
+    section {
+        flex-direction: column;
+
+        .chart {
+            width: 100%;
+            height: 400px;
+        }
+
+        .time-entry {
+            width: 100%;
+        }
+    }
+
+    app-progress-bar {
+        margin-left: 10px;
+        margin-top: 20px;
+    }
+}

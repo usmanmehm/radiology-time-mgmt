@@ -9,22 +9,24 @@
     </div>
     <ng-container *ngIf="!isOnBreak">
         <h1 [class.over-time]="isOverTime">Time left in current session: {{ timeLeft$ | async }}</h1>
-        <p><b>Current Case:</b> {{ currentCase.description }}</p>
-        <p *ngIf="totalCases && caseNumber !== undefined"><b>Cases remaining:</b> {{ sessionService.casesLeftText }}</p>
-        <p *ngIf="totalCases && caseNumber !== undefined"><b>Completed cases:</b> {{ caseNumber }} / {{ totalCases }} ({{ caseNumber / totalCases * 100 }}%)</p>
-        <p><b>Time per case allowed:</b> {{ formattedTimePerCase }} minutes</p>
-        <p><b>Current pace:</b> {{ pace }} minutes</p>
-        <p><b>Session End Time:</b> {{ sessionEndTime }}</p>
+        <div class="info-grid">
+            <p><b>Current Case:</b> {{ currentCase.description }}</p>
+            <p *ngIf="totalCases && caseNumber !== undefined"><b>Cases remaining:</b> {{ sessionService.casesLeftText }}</p>
+            <p *ngIf="totalCases && caseNumber !== undefined"><b>Completed cases:</b> {{ caseNumber }} / {{ totalCases }} ({{ Math.round(caseNumber / totalCases * 100) }}%)</p>
+            <p><b>Time per case allowed:</b> {{ formattedTimePerCase }} minutes</p>
+            <p *ngIf="pace"><b>Current pace:</b> {{ pace }} minutes</p>
+            <p><b>Session End Time:</b> {{ sessionEndTime }}</p>
+        </div>
     </ng-container>
     <h2><b></b> "{{ motivationalQuote }}"</h2>
 
     <div class="button-container" *ngIf="!isOnBreak">
-        <button mat-fab extended class="large" (click)="onSignCase()">
+        <button mat-fab extended class="large" (click)="onSignCase()" title="Press Space to sign case">
             <mat-icon>check_box</mat-icon>
             Sign Case
         </button>
         <!-- <button (click)="onCancelSession()">Cancel</button> -->
-        <button mat-stroked-button (click)="onEndSession()">End</button>
+        <button mat-stroked-button (click)="onEndSession()" title="Press Esc to end session">End Session</button>
     </div>
 </div>
 
