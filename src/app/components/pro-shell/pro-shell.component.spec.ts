@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { InsightsHistoryComponent } from './insights-history.component';
+import { ProShellComponent } from './pro-shell.component';
 
-describe('InsightsHistoryComponent', () => {
-  let component: InsightsHistoryComponent;
-  let fixture: ComponentFixture<InsightsHistoryComponent>;
+describe('ProShellComponent', () => {
+  let component: ProShellComponent;
+  let fixture: ComponentFixture<ProShellComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [InsightsHistoryComponent]
+      imports: [ProShellComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(InsightsHistoryComponent);
+    fixture = TestBed.createComponent(ProShellComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

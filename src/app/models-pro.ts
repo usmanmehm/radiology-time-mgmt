@@ -6,6 +6,11 @@ export interface CaseType {
   count: number;
 }
 
+export enum ShiftScheduleMode {
+  ByEndTime = 'byEndTime',
+  ByBudget = 'byBudget'
+}
+
 export type QueueItemStatus = 'pending' | 'done';
 
 export interface QueueItem {
@@ -29,6 +34,18 @@ export interface TypeBreakdown {
   completed: number;
 }
 
+export interface TimelineCaseLog {
+  typeName: string;
+  startTime: string; // ISO
+  endTime: string; // ISO
+  stat?: boolean;
+}
+
+export interface TimelineBreakLog {
+  start: string; // ISO
+  end: string; // ISO
+}
+
 export interface ShiftRecord {
   id: string;
   date: string; // ISO date the shift was completed
@@ -40,4 +57,9 @@ export interface ShiftRecord {
   casesPerHour: number;
   totalMinutesWorked: number;
   byType: TypeBreakdown[];
+  // Optional: absent on shifts recorded before schedule visualization was added.
+  shiftStart?: string; // ISO
+  shiftEndTargetIso?: string; // ISO
+  caseLog?: TimelineCaseLog[];
+  breakLog?: TimelineBreakLog[];
 }

@@ -35,6 +35,35 @@
         </div>
     </div>
 
+    <div class="progress-card">
+        <div class="progress-row">
+            <span class="progress-label">Cases completed</span>
+            <span class="progress-value">{{ shiftService.completedCount }} / {{ shiftService.totalCases }} ({{ shiftService.completionRate }}%)</span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill cases" [style.width.%]="shiftService.completionRate"></div>
+        </div>
+
+        <div class="progress-row">
+            <span class="progress-label">Shift time elapsed</span>
+            <span class="progress-value">{{ shiftTimeElapsedPct }}%</span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill time" [style.width.%]="shiftTimeElapsedPct"></div>
+        </div>
+    </div>
+
+    <div class="schedule-card">
+        <span class="card-title">Shift Schedule</span>
+        <app-schedule-timeline
+            [shiftStart]="shiftService.shiftStart"
+            [shiftEnd]="shiftService.shiftEnd"
+            [breaks]="timelineBreaks"
+            [workBlocks]="timelineWorkBlocks"
+            [now]="nowMarker">
+        </app-schedule-timeline>
+    </div>
+
     <div class="case-card" *ngIf="!shiftService.isOnBreak" [class.over-time]="shiftService.isCaseOverTime">
         <span class="stat-badge" *ngIf="case_.stat">STAT</span>
         <h1>{{ case_.typeName }}</h1>

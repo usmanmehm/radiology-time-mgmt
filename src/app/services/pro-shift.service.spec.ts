@@ -1,14 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 
-import { InsightsShiftService } from './insights-shift.service';
+import { ProShiftService } from './pro-shift.service';
 
-describe('InsightsShiftService', () => {
-  let service: InsightsShiftService;
+describe('ProShiftService', () => {
+  let service: ProShiftService;
 
   beforeEach(() => {
     localStorage.clear();
     TestBed.configureTestingModule({});
-    service = TestBed.inject(InsightsShiftService);
+    service = TestBed.inject(ProShiftService);
   });
 
   it('should be created', () => {

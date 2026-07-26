@@ -1,0 +1,113 @@
+.schedule-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .timeline-track {
+        position: relative;
+        height: 40px;
+        background-color: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        overflow: hidden;
+
+        .segment {
+            position: absolute;
+            top: 5px;
+            bottom: 5px;
+            border-radius: 4px;
+
+            &.break {
+                background-color: rgba(255, 191, 0, 0.55);
+            }
+
+            &.work {
+                background-color: #5ebbae;
+
+                &.stat {
+                    background-color: #ff6b6b;
+                }
+
+                &.in-progress {
+                    background-image: repeating-linear-gradient(
+                        135deg,
+                        rgba(255, 255, 255, 0.25),
+                        rgba(255, 255, 255, 0.25) 6px,
+                        transparent 6px,
+                        transparent 12px
+                    );
+                    animation: pulse-glow 1.6s ease-in-out infinite;
+                }
+            }
+        }
+
+        .marker {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            transform: translateX(-1px);
+
+            &.target-end {
+                background-image: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.55) 0 4px, transparent 4px 8px);
+            }
+
+            &.now {
+                background-color: #fff;
+                box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+            }
+        }
+    }
+
+    .hour-ticks {
+        position: relative;
+        height: 14px;
+
+        .tick {
+            position: absolute;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.4);
+            white-space: nowrap;
+        }
+    }
+
+    .legend {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.6);
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .swatch {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            display: inline-block;
+
+            &.work { background-color: #5ebbae; }
+            &.stat { background-color: #ff6b6b; }
+            &.break { background-color: rgba(255, 191, 0, 0.55); }
+        }
+
+        .marker-swatch {
+            width: 12px;
+            height: 2px;
+            display: inline-block;
+
+            &.target-end { background-image: repeating-linear-gradient(to right, rgba(255, 255, 255, 0.55) 0 3px, transparent 3px 6px); }
+            &.now { background-color: #fff; }
+        }
+    }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { InsightsShellComponent } from './insights-shell.component';
+import { ProLiveComponent } from './pro-live.component';
 
-describe('InsightsShellComponent', () => {
-  let component: InsightsShellComponent;
-  let fixture: ComponentFixture<InsightsShellComponent>;
+describe('ProLiveComponent', () => {
+  let component: ProLiveComponent;
+  let fixture: ComponentFixture<ProLiveComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [InsightsShellComponent]
+      imports: [ProLiveComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(InsightsShellComponent);
+    fixture = TestBed.createComponent(ProLiveComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

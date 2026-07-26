@@ -1,0 +1,21 @@
+<div class="schedule-timeline" *ngIf="shiftStart && shiftEnd">
+    <div class="timeline-track">
+        <div class="segment break" *ngFor="let seg of breakSegments" [style.left.%]="seg.leftPct" [style.width.%]="seg.widthPct"
+            [title]="'Break: ' + formatTime(seg.info.start) + ' - ' + formatTime(seg.info.end)"></div>
+        <div class="segment work" *ngFor="let seg of workSegments" [class.stat]="seg.info.stat" [class.in-progress]="seg.info.inProgress"
+            [style.left.%]="seg.leftPct" [style.width.%]="seg.widthPct"
+            [title]="seg.info.label + ': ' + formatTime(seg.info.start) + ' - ' + formatTime(seg.info.end)"></div>
+        <div class="marker target-end" [style.left.%]="targetEndPct" title="Target shift end"></div>
+        <div class="marker now" *ngIf="nowPct !== null" [style.left.%]="nowPct" title="Now"></div>
+    </div>
+    <div class="hour-ticks">
+        <span class="tick" *ngFor="let m of hourMarks" [style.left.%]="m.leftPct">{{ m.label }}</span>
+    </div>
+    <div class="legend">
+        <span class="legend-item"><i class="swatch work"></i>Work</span>
+        <span class="legend-item"><i class="swatch stat"></i>STAT</span>
+        <span class="legend-item"><i class="swatch break"></i>Break</span>
+        <span class="legend-item"><i class="marker-swatch target-end"></i>Target end</span>
+        <span class="legend-item" *ngIf="nowPct !== null"><i class="marker-swatch now"></i>Now</span>
+    </div>
+</div>

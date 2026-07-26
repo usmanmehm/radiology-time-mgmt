@@ -3,17 +3,57 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import dayjs from 'dayjs';
-import { InsightsShiftService } from '../../services/insights-shift.service';
-import { ShiftRecord } from '../../models-insights';
+import { ProShiftService } from '../../services/pro-shift.service';
+import { ShiftRecord } from '../../models-pro';
+import { ScheduleTimelineComponent, TimelineBreak, TimelineWorkBlock } from '../schedule-timeline/schedule-timeline.component';
 
 @Component({
-  selector: 'app-insights-history',
-  imports: [CommonModule, MatButtonModule, MatIconModule],
-  templateUrl: './insights-history.component.html',
-  styleUrl: './insights-history.component.scss'
+  selector: 'app-pro-history',
+  imports: [CommonModule, MatButtonModule, MatIconModule, ScheduleTimelineComponent],
+  templateUrl: './pro-history.component.html',
+  styleUrl: './pro-history.component.scss'
 })
-export class InsightsHistoryComponent {
-  constructor(public shiftService: InsightsShiftService) {}
+export class ProHistoryComponent {
+  private expandedIds = new Set<string>();
+
+  constructor(public shiftService: ProShiftService) {}
+
+  hasSchedule(s: ShiftRecord): boolean {
+    return !!(s.shiftStart && s.shiftEndTargetIso);
+  }
+
+  isExpanded(s: ShiftRecord): boolean {
+    return this.expandedIds.has(s.id);
+  }
+
+  toggleSchedule(s: ShiftRecord) {
+    if (this.expandedIds.has(s.id)) {
+      this.expandedIds.delete(s.id);
+    } else {
+      this.expandedIds.add(s.id);
+    }
+  }
+
+  timelineShiftStart(s: ShiftRecord): Date {
+    return new Date(s.shiftStart!);
+  }
+
+  timelineShiftEnd(s: ShiftRecord): Date {
+    return new Date(s.shiftEndTargetIso!);
+  }
+
+  timelineWorkBlocks(s: ShiftRecord): TimelineWorkBlock[] {
+    return (s.caseLog || []).map(c => ({
+      start: new Date(c.startTime),
+      end: new Date(c.endTime),
+      label: c.typeName,
+      stat: c.stat
+    }));
+  }
+
+  timelineBreaks(s: ShiftRecord): TimelineBreak[] {
+    return (s.breakLog || []).map(b => ({ start: new Date(b.start), end: new Date(b.end) }));
+  }
 
   get trendShifts(): ShiftRecord[] {
     return [...this.shiftService.history].slice(0, 10).reverse();

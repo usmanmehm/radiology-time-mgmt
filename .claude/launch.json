@@ -4,8 +4,8 @@
     {
       "name": "radiology-time-mgmt",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start"],
-      "port": 4200
+      "runtimeArgs": ["run", "start", "--", "--port", "4301"],
+      "port": 4301
     }
   ]
 }

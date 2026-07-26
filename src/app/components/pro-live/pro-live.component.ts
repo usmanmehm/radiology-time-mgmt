@@ -5,15 +5,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { InsightsShiftService } from '../../services/insights-shift.service';
+import dayjs from 'dayjs';
+import { ProShiftService } from '../../services/pro-shift.service';
+import { ScheduleTimelineComponent, TimelineBreak, TimelineWorkBlock } from '../schedule-timeline/schedule-timeline.component';
 
 @Component({
-  selector: 'app-insights-live',
-  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule],
-  templateUrl: './insights-live.component.html',
-  styleUrl: './insights-live.component.scss'
+  selector: 'app-pro-live',
+  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, ScheduleTimelineComponent],
+  templateUrl: './pro-live.component.html',
+  styleUrl: './pro-live.component.scss'
 })
-export class InsightsLiveComponent implements OnInit, OnDestroy {
+export class ProLiveComponent implements OnInit, OnDestroy {
   showStatForm = false;
   statName = '';
   statMinutes = 10;
@@ -43,7 +45,41 @@ export class InsightsLiveComponent implements OnInit, OnDestroy {
   private timeUpPlayed = false;
   private audioTickHandle: ReturnType<typeof setInterval> | undefined;
 
-  constructor(public shiftService: InsightsShiftService) {}
+  constructor(public shiftService: ProShiftService) {}
+
+  get shiftTimeElapsedPct(): number {
+    const s = this.shiftService;
+    if (!s.shiftStart || !s.shiftEnd) return 0;
+    const total = dayjs(s.shiftEnd).diff(dayjs(s.shiftStart));
+    if (total <= 0) return 100;
+    const elapsed = dayjs().diff(dayjs(s.shiftStart));
+    return Math.max(0, Math.min(100, Math.round((elapsed / total) * 100)));
+  }
+
+  get timelineWorkBlocks(): TimelineWorkBlock[] {
+    const s = this.shiftService;
+    const blocks: TimelineWorkBlock[] = s.queue
+      .filter(q => q.status === 'done' && q.startTime && q.endTime)
+      .map(q => ({ start: q.startTime!, end: q.endTime!, label: q.typeName, stat: q.stat }));
+
+    if (s.currentItem?.startTime && !s.isOnBreak) {
+      blocks.push({ start: s.currentItem.startTime, end: new Date(), label: s.currentItem.typeName, stat: s.currentItem.stat, inProgress: true });
+    }
+    return blocks;
+  }
+
+  get nowMarker(): Date {
+    return new Date();
+  }
+
+  get timelineBreaks(): TimelineBreak[] {
+    const s = this.shiftService;
+    const breaks: TimelineBreak[] = s.breaks.map(b => ({ start: b.start, end: b.end }));
+    if (s.activeBreakStart && s.activeBreakEnd) {
+      breaks.push({ start: s.activeBreakStart, end: s.activeBreakEnd });
+    }
+    return breaks;
+  }
 
   ngOnInit() {
     this.wasOnBreak = this.shiftService.isOnBreak;

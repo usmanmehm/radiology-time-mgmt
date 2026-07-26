@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
 import { ClassicWorkspaceComponent } from './components/classic-workspace/classic-workspace.component';
-import { InsightsShellComponent } from './components/insights-shell/insights-shell.component';
+import { ProShellComponent } from './components/pro-shell/pro-shell.component';
 
 export const routes: Routes = [
   { path: '', component: ClassicWorkspaceComponent },
-  { path: 'insights', component: InsightsShellComponent },
+  { path: 'pro', component: ProShellComponent },
   { path: '**', redirectTo: '' }
 ];

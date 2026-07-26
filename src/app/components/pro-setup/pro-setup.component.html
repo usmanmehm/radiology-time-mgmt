@@ -2,12 +2,22 @@
     <h2>Plan Today's Shift</h2>
     <p class="subtitle">Build a mixed worklist instead of one flat case count — every study type gets its own time budget.</p>
 
-    <mat-form-field>
+    <div class="mode-row">
+        <mat-button-toggle-group class="mode-toggle" [(ngModel)]="mode" name="mode" aria-label="Scheduling mode">
+            <mat-button-toggle [value]="Modes.ByEndTime">By End Time</mat-button-toggle>
+            <mat-button-toggle [value]="Modes.ByBudget">By Budgeted Time</mat-button-toggle>
+        </mat-button-toggle-group>
+    </div>
+
+    <mat-form-field *ngIf="mode === Modes.ByEndTime">
         <mat-label>Shift ends at</mat-label>
         <input matInput name="shift-end" [matTimepicker]="shiftEndPicker" [(ngModel)]="shiftEnd">
         <mat-timepicker-toggle matIconSuffix [for]="shiftEndPicker"/>
         <mat-timepicker interval="5min" #shiftEndPicker/>
     </mat-form-field>
+
+    <p class="estimate" *ngIf="mode === Modes.ByBudget">Estimated end time, based on case budgets and confirmed breaks: <b>{{ estimatedEndTimeLabel }}</b></p>
+    <p class="estimate" *ngIf="mode === Modes.ByEndTime">Time per case is calculated from the end time, minus confirmed breaks: <b>{{ derivedMinutesPerCase }} min/case</b></p>
 
     <h3>Case Types</h3>
     <div class="case-type-row" *ngFor="let ct of caseTypes; let i = index">
@@ -21,7 +31,8 @@
         </mat-form-field>
         <mat-form-field class="narrow">
             <mat-label>Mins/case</mat-label>
-            <input matInput type="number" [(ngModel)]="ct.targetMinutes" [name]="'type-mins-' + i">
+            <input matInput type="number" [ngModel]="displayMinutes(ct)" (ngModelChange)="ct.targetMinutes = $event"
+                [disabled]="mode === Modes.ByEndTime" [name]="'type-mins-' + i">
         </mat-form-field>
         <button mat-icon-button (click)="removeCaseType(i)" title="Remove this study type" type="button">
             <mat-icon>delete</mat-icon>
@@ -36,7 +47,7 @@
     </div>
 
     <h3>Breaks <span class="optional">(optional — you can also take one on demand mid-shift)</span></h3>
-    <app-break [breaks]="breaks" [maxTime]="shiftEnd"></app-break>
+    <app-break [breaks]="breaks" [maxTime]="effectiveShiftEnd"></app-break>
     <button mat-button (click)="addBreak()" type="button"><mat-icon>add</mat-icon>Add Break</button>
 
     <div class="button-group">

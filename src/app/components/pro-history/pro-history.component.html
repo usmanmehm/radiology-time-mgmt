@@ -41,6 +41,18 @@
             </div>
             <div class="type-breakdown">
                 <span class="chip" *ngFor="let t of s.byType">{{ t.name }}: {{ t.completed }}</span>
+                <button mat-button class="schedule-toggle" *ngIf="hasSchedule(s)" (click)="toggleSchedule(s)" type="button">
+                    <mat-icon>{{ isExpanded(s) ? 'expand_less' : 'schedule' }}</mat-icon>
+                    {{ isExpanded(s) ? 'Hide schedule' : 'View schedule' }}
+                </button>
+            </div>
+            <div class="schedule-detail" *ngIf="hasSchedule(s) && isExpanded(s)">
+                <app-schedule-timeline
+                    [shiftStart]="timelineShiftStart(s)"
+                    [shiftEnd]="timelineShiftEnd(s)"
+                    [breaks]="timelineBreaks(s)"
+                    [workBlocks]="timelineWorkBlocks(s)">
+                </app-schedule-timeline>
             </div>
         </div>
     </ng-container>

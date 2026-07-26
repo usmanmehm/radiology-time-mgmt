@@ -22,6 +22,6 @@ describe('AppComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const links = Array.from(compiled.querySelectorAll('.app-nav a')).map(a => a.textContent?.trim());
     expect(links.some(l => l?.startsWith('Classic'))).toBeTrue();
-    expect(links.some(l => l?.startsWith('Insights'))).toBeTrue();
+    expect(links.some(l => l?.startsWith('Pro'))).toBeTrue();
   });
 });

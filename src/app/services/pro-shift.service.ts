@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import dayjs from 'dayjs';
-import { CaseType, QueueItem, ShiftRecord, ShiftSetup, TypeBreakdown } from '../models-insights';
+import { CaseType, QueueItem, ShiftRecord, ShiftSetup, TimelineBreakLog, TimelineCaseLog, TypeBreakdown } from '../models-pro';
 import { BreakInfo } from '../models';
 
 export const FATIGUE_THRESHOLD_MINUTES = 60;
@@ -11,7 +11,7 @@ const HISTORY_KEY = 'chronoradShiftHistory';
 @Injectable({
   providedIn: 'root'
 })
-export class InsightsShiftService {
+export class ProShiftService {
   shiftActive = false;
 
   queue: QueueItem[] = [];
@@ -21,6 +21,7 @@ export class InsightsShiftService {
   totalCases = 0;
 
   activeBreakEnd: Date | null = null;
+  activeBreakStart: Date | null = null;
   lastBreakEndTime!: Date;
 
   history: ShiftRecord[] = [];
@@ -121,6 +122,7 @@ export class InsightsShiftService {
   }
 
   startBreak(minutes: number) {
+    this.activeBreakStart = new Date();
     this.activeBreakEnd = dayjs().add(minutes, 'minute').toDate();
     this.tick();
     this.saveActiveShift();
@@ -139,6 +141,7 @@ export class InsightsShiftService {
       this.breaks[scheduledIdx] = { ...this.breaks[scheduledIdx], end: now };
     }
     this.activeBreakEnd = null;
+    this.activeBreakStart = null;
     this.lastBreakEndTime = now;
     this.tick();
     this.saveActiveShift();
@@ -158,6 +161,7 @@ export class InsightsShiftService {
     this.totalCases = 0;
     this.currentItem = undefined;
     this.activeBreakEnd = null;
+    this.activeBreakStart = null;
     localStorage.removeItem(ACTIVE_SHIFT_KEY);
   }
 
@@ -187,6 +191,17 @@ export class InsightsShiftService {
     completed.forEach(c => byTypeMap.set(c.typeName, (byTypeMap.get(c.typeName) || 0) + 1));
     const byType: TypeBreakdown[] = Array.from(byTypeMap.entries()).map(([name, count]) => ({ name, completed: count }));
 
+    const caseLog: TimelineCaseLog[] = completed.map(c => ({
+      typeName: c.typeName,
+      startTime: dayjs(c.startTime).toISOString(),
+      endTime: dayjs(c.endTime).toISOString(),
+      stat: c.stat
+    }));
+    const breakLog: TimelineBreakLog[] = this.breaks.map(b => ({
+      start: dayjs(b.start).toISOString(),
+      end: dayjs(b.end).toISOString()
+    }));
+
     return {
       id: this.makeId('shift'),
       date: new Date().toISOString(),
@@ -197,7 +212,11 @@ export class InsightsShiftService {
       avgPaceMinutes: Math.round(avgPaceMinutes * 10) / 10,
       casesPerHour: Math.round(casesPerHour * 10) / 10,
       totalMinutesWorked: Math.round(totalMinutesWorked),
-      byType
+      byType,
+      shiftStart: dayjs(this.shiftStart).toISOString(),
+      shiftEndTargetIso: dayjs(this.shiftEnd).toISOString(),
+      caseLog,
+      breakLog
     };
   }
 
@@ -227,6 +246,7 @@ export class InsightsShiftService {
       this.breakTimeLeft = this.formatDuration(this.msLeftInBreak, true);
     } else if (this.activeBreakEnd) {
       this.activeBreakEnd = null;
+      this.activeBreakStart = null;
     }
 
     if (!this.isOnBreak && this.wasOnBreak) {
@@ -281,6 +301,7 @@ export class InsightsShiftService {
       shiftEnd: this.shiftEnd,
       totalCases: this.totalCases,
       activeBreakEnd: this.activeBreakEnd,
+      activeBreakStart: this.activeBreakStart,
       lastBreakEndTime: this.lastBreakEndTime
     };
     localStorage.setItem(ACTIVE_SHIFT_KEY, JSON.stringify(state));
@@ -302,6 +323,7 @@ export class InsightsShiftService {
       this.shiftEnd = new Date(state.shiftEnd);
       this.totalCases = state.totalCases || this.queue.length;
       this.activeBreakEnd = state.activeBreakEnd ? new Date(state.activeBreakEnd) : null;
+      this.activeBreakStart = state.activeBreakStart ? new Date(state.activeBreakStart) : null;
       this.lastBreakEndTime = state.lastBreakEndTime ? new Date(state.lastBreakEndTime) : this.shiftStart;
       this.shiftActive = true;
 
@@ -309,7 +331,7 @@ export class InsightsShiftService {
       this.tick();
       this.startTicking();
     } catch (e) {
-      console.error('Error restoring active Insights shift', e);
+      console.error('Error restoring active Pro shift', e);
       localStorage.removeItem(ACTIVE_SHIFT_KEY);
     }
   }
@@ -320,7 +342,7 @@ export class InsightsShiftService {
     try {
       this.history = JSON.parse(saved);
     } catch (e) {
-      console.error('Error restoring Insights shift history', e);
+      console.error('Error restoring Pro shift history', e);
       this.history = [];
     }
   }
